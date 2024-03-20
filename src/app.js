@@ -15,6 +15,8 @@ const server = http.createServer((req, res) => {
 
 	if (route == 'account') {
 		account_routes(req, res);
+	} else if (route == 'admin') {
+		admin_routes(req, res);
 	} else {
 		res.end('Welcome to MunchMate!');
 	}

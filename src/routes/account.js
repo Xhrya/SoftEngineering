@@ -116,6 +116,9 @@ const router = (req, res) => {
 					//unauthorized
 				}
 			})
+			.catch((error) => {
+				//error with token signout user
+			})
 		}
 	} else if (url = '/account/view') {
 		let auth_token = req.headers['authorization'];
@@ -147,6 +150,9 @@ const router = (req, res) => {
 				} else {
 					//unauthorized
 				}
+			})
+			.catch((error) => {
+				//signout user bad token
 			})
 		} else {
 			//unauthorized
