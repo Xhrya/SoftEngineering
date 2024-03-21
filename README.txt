@@ -1,0 +1,1 @@
+To run this code, you will need to run gptserver.js, as well as run communicatortest.js in order to communicate with gptserver.js. 
