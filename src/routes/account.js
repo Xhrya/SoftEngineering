@@ -120,7 +120,8 @@ const router = (req, res) => {
 				//error with token signout user
 			})
 		}
-	} else if (url = '/account/view') {
+	} else if (url.includes('/account/view?')) {
+		//THIS IS FOR ORDERS NOT VIEWING ACCOUNT DETAILS
 		let auth_token = req.headers['authorization'];
 		if (auth_token) {
 			account_tools.verify(auth_token)
