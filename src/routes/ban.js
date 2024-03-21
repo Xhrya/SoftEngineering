@@ -27,26 +27,44 @@ const router = (req, res) => {
 								let q = `UPDATE User SET status = 'ban' WHERE user_id = ${user_id}`;
 								db.query(q, (err, results) => {
 									//handle error
-									if (err) throw err;
-									res.end(JSON.stringify({ success: true }));
+									if (err) {
+										res.writeHead(500, { 'Content-Type': 'text/plain' });
+										res.end('Server error');
+									} else {
+										res.writeHead(200, { 'Content-Type': 'text/plain' });
+										res.end(JSON.stringify({ success: true }));
+									}
 								})
 							} catch(e) {
 								//error with JSON
+								res.writeHead(400, { 'Content-Type': 'text/plain' });
+								res.end('Error parsing JSON data!');
 							}
 						})
 					} else {
 						//wrong method
+						res.writeHead(405, { 'Content-Type': 'text/plain' });
+						res.end('Wrong method type');
 					}
+				} else {
+					res.writeHead(404, { 'Content-Type': 'text/plain' });
+					res.end('This URL is not found.');
 				}
 			} else {
 				//unauthorized
+				res.writeHead(401, { 'Content-Type': 'text/plain' });
+				res.end('Unauthorized User');
 			}
 		})
 		.catch((error) => {
 			//token invalid signout
+			res.writeHead(400, { 'Content-Type': 'text/plain' });
+			res.end('Token invalid.');
 		})
 	} else {
 		//unauthorized
+		res.writeHead(401, { 'Content-Type': 'text/plain' });
+		res.end('Authorization not provided.');
 	}
 }
 

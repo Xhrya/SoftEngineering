@@ -24,7 +24,8 @@ const server = http.createServer((req, res) => {
 	} else if (route == 'ban') {
 		ban_routes(req, res);
 	} else {
-		res.end('Welcome to MunchMate!');
+                res.writeHead(404, { 'Content-Type': 'text/plain' });
+                res.end('This URL is not found.');		
 	}
 })
 

@@ -17,24 +17,41 @@ const router = (req, res) => {
 						let q = `SELECT * FROM User`;
 						db.query(q, (err, results) => {
 							//handle error
-							let obj = {
-								users: results
+							if (err) {
+								res.writeHead(500, { 'Content-Type': 'text/plain' });
+								res.end('Server error');
+							} else {
+								res.writeHead(200, { 'Content-Type': 'text/plain' });
+								let obj = {
+									users: results
+								}
+								res.end(JSON.stringify(obj));
 							}
-							res.end(JSON.stringify(obj));
 						})
 					} else {
 						//bad method
+						res.writeHead(405, { 'Content-Type': 'text/plain' });
+						res.end('Wrong method type');
 					}	
 				} else {
-					//bad route
+					res.writeHead(404, { 'Content-Type': 'text/plain' });
+					res.end('This URL is not found.');
 				}
 			} else {
 				//unauthorized
+				res.writeHead(401, { 'Content-Type': 'text/plain' });
+				res.end('Unauthorized User');
 			}
 		})
 		.catch((error) => {
 			//error with token verification signout
+			res.writeHead(400, { 'Content-Type': 'text/plain' });
+			res.end('Token invalid.');
 		})
+	} else {
+		//no token
+		res.writeHead(401, { 'Content-Type': 'text/plain' });
+		res.end('Authorization not provided.');
 	}
 }
 

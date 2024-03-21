@@ -27,11 +27,18 @@ const router = (req, res) => {
 						}
 						db.query(q, (err, results) => {
 							//handle error
-							if (err) throw err;
-
-							let obj = { flags: results };
-							res.end(JSON.stringify(obj));
+							if (err) {
+								res.writeHead(500, { 'Content-Type': 'text/plain' });
+								res.end('Server error');
+							} else {
+								let obj = { flags: results };
+								res.writeHead(200, { 'Content-Type': 'text/plain' });
+								res.end(JSON.stringify(obj));
+							}
 						})
+					} else {
+						res.writeHead(405, { 'Content-Type': 'text/plain' });
+						res.end('Wrong method type');
 					}
 				} else if (url == '/flags/warn') {
 					let data = '';
@@ -49,23 +56,40 @@ const router = (req, res) => {
 							let q = `INSERT INTO Flag VALUES (default, '${comment}', ${user_id}, 'CONFIRMED', 0)`;
 							db.query(q, (err, results) => {
 								//handle error
-								if (err) throw err;
-								res.end(JSON.stringify({ success: true }));
+								if (err) {
+									res.writeHead(500, { 'Content-Type': 'text/plain' });
+									res.end('Server error');
+								} else {
+									let obj = { success: true };
+									res.writeHead(200, { 'Content-Type': 'text/plain' });
+									res.end(JSON.stringify(obj));
+								}
 							})
 						} catch(e) {
 							//error with JSON
+							res.writeHead(400, { 'Content-Type': 'text/plain' });
+							res.end('Error parsing JSON data!');
 						}
 					})
-				} 
+				} else {
+					res.writeHead(404, { 'Content-Type': 'text/plain' });
+					res.end('This URL is not found.');
+				}
 			} else {
 				//unauthorized
+				res.writeHead(401, { 'Content-Type': 'text/plain' });
+				res.end('Unauthorized User');
 			}
 		})
 		.catch((error) => {
 			//invalid token
+			res.writeHead(400, { 'Content-Type': 'text/plain' });
+			res.end('Token invalid.');
 		})
 	} else {
 		//no auth token
+		res.writeHead(401, { 'Content-Type': 'text/plain' });
+		res.end('Authorization not provided.');
 	}
 }
 

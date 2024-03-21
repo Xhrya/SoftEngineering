@@ -26,31 +26,45 @@ const router = (req, res) => {
 					db.query(q, (err, results) => {
 						//handle error
 						if (err) throw err;
-						if (results.length > 0) {
-							//should store hashed passwords using crypto js
-							if (results[0].password == password) {
-								//login successful
-								let obj = {
-									username: username, 
-									email: results[0].email,
-									role: results[0].role
-								}
-								//return token we should set time limit
-								let token = jwt.sign(obj, process.env.JWT_SECRET);
-								//write response header
-								res.end(token);
-							} else {
-								//password not match
-							}
+						if (err) {
+							res.writeHead(500, { 'Content-Type': 'text/plain' });
+							res.end('Server error');
 						} else {
-							//username not exist :(
+							if (results.length > 0) {
+								//should store hashed passwords using crypto js
+								if (results[0].password == password) {
+									//login successful
+									let obj = {
+										username: username, 
+										email: results[0].email,
+										role: results[0].role
+									}
+									//return token we should set time limit
+									let token = jwt.sign(obj, process.env.JWT_SECRET);
+									//write response header
+									res.writeHead(200, { 'Content-Type': 'text/plain' });
+									res.end(token);
+								} else {
+									//password not match
+									res.writeHead(401, { 'Content-Type': 'text/plain' });
+									res.end('Wrong password');
+								}
+							} else {
+								//username not exist :(
+								res.writeHead(401, { 'Content-Type': 'text/plain' });
+								res.end('Account does not exist');
+							}
 						}
 					})
 				} catch(e) {
 					//invalid JSON body
-					console.log(e);
+					res.writeHead(400, { 'Content-Type': 'text/plain' });
+					res.end('Error parsing JSON data!');
 				}
 			})
+		} else {
+			res.writeHead(405, { 'Content-Type': 'text/plain' });
+			res.end('Wrong method type');
 		}
 	} else if (url == '/account/verify') {
 		if (req.method === 'POST') {
@@ -69,12 +83,18 @@ const router = (req, res) => {
 					})
 					.catch((error) => {
 						//handle error
+						res.writeHead(400, { 'Content-Type': 'text/plain' });
+						res.end('Token invalid.');
 					})
 				} catch(e) {
 					//error with JSON
-					console.log(e);
+					res.writeHead(400, { 'Content-Type': 'text/plain' });
+					res.end('Error parsing JSON data!');
 				}
 			})
+		} else {
+			res.writeHead(405, { 'Content-Type': 'text/plain' });
+			res.end('Wrong method type');
 		}
 	} else if (url == '/account/create') {
 		//check if user is signed in first and verify admin permission
@@ -101,24 +121,40 @@ const router = (req, res) => {
 								let q = `INSERT INTO User VALUES (default, '${username}', '${email}', '${password}', 'active', ${role})`; 
 								db.query(q, (err, results) => {
 									//handle error
-									if (err) throw err;
-									let obj = { success: true };
-									res.end(JSON.stringify(obj));
+									if (err) {
+										res.writeHead(500, { 'Content-Type': 'text/plain' })
+										res.end('Server error')
+									} else {
+										let obj = { success: true };
+										res.writeHead(200, { 'Content-Type': 'text/plain' });
+										res.end(JSON.stringify(obj));
+									}
 								})
 							} catch(e) {
 								//error JSON
+								res.writeHead(400, { 'Content-Type': 'text/plain' });
+								res.end('Error parsing JSON data!');
 							}
 						})
 					} else {
 						//wrong method
+						res.writeHead(405, { 'Content-Type': 'text/plain' });
+						res.end('Wrong method type');
 					}
 				} else {
 					//unauthorized
+					res.writeHead(401, { 'Content-Type': 'text/plain' });
+					res.end('Unauthorized User');
 				}
 			})
 			.catch((error) => {
 				//error with token signout user
+				res.writeHead(400, { 'Content-Type': 'text/plain' });
+				res.end('Token invalid.');
 			})
+		} else {
+			res.writeHead(401, { 'Content-Type': 'text/plain' });
+			res.end('Authorization not provided.');
 		}
 	} else if (url.includes('/account/view?')) {
 		//THIS IS FOR ORDERS NOT VIEWING ACCOUNT DETAILS
@@ -135,29 +171,50 @@ const router = (req, res) => {
 							db.query(q, (err, results) => {
 								//handle err
 								if (err) throw err;
-								if (results.length > 0) {
-									let obj = results[0];
-									res.end(JSON.stringify(obj));
+								if (err) {
+									res.writeHead(500, { 'Content-Type': 'text/plain' });
+									res.end('Server error');
 								} else {
-									//bad user id
-								}		
+									if (results.length > 0) {
+										let obj = results[0];
+										res.writeHead(200, { 'Content-Type': 'text/plain' });
+										res.end(JSON.stringify(obj));
+									} else {
+										//bad user id
+										res.writeHead(400, { 'Content-Type': 'text/plain' })
+										res.end('Bad user ID.');
+									}		
+								}
 							})
 						} else {
 							//user_id not specified
+							res.writeHead(400, { 'Content-Type': 'text/plain' })
+							res.end('Bad user ID.');
 						}	
 					} else {
 						//wrong method
+						res.writeHead(405, { 'Content-Type': 'text/plain' });
+						res.end('Wrong method type');
 					}
 				} else {
 					//unauthorized
+					res.writeHead(401, { 'Content-Type': 'text/plain' });
+					res.end('Unauthorized User');
 				}
 			})
 			.catch((error) => {
 				//signout user bad token
+				res.writeHead(400, { 'Content-Type': 'text/plain' });
+				res.end('Token invalid.');
 			})
 		} else {
 			//unauthorized
+			res.writeHead(401, { 'Content-Type': 'text/plain' });
+			res.end('Authorization not provided');
 		}			
+	} else {
+                res.writeHead(404, { 'Content-Type': 'text/plain' });
+                res.end('This URL is not found.');
 	}
 }
 
