@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import OpenAI from 'openai';
 
 // Load environment variables
-const result = dotenv.config({ path: "cred.env" });
+const result = dotenv.config({ path: "gpt.env" });
 
 if (result.error) {
     console.error("Error loading .env file:", result.error);
