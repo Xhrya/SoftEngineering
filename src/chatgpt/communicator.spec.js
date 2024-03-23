@@ -1,5 +1,5 @@
 // communicator.spec.js
-import { sendMessageToServer, handleServerResponse } from './communicatortest.js';
+import { sendMessageToServer, handleServerResponse } from './communicator.js';
 import fetch from 'node-fetch';
 
 describe('Server Communication', () => {
