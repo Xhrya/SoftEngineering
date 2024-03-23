@@ -41,36 +41,41 @@ const router = (req, res) => {
 						res.end('Wrong method type');
 					}
 				} else if (url == '/flags/warn') {
-					let data = '';
-					req.on('data', (chunk) => {
-						data += chunk;
-					})
-					req.on('end', () => {
-						try {
-							let body = JSON.parse(data);
-							let {
-								comment, 
-								user_id,
-								reason //reason not being handled tho in mysql maybe add column
-							} = body;
-							let q = `INSERT INTO Flag VALUES (default, '${comment}', ${user_id}, 'CONFIRMED', 0)`;
-							db.query(q, (err, results) => {
-								//handle error
-								if (err) {
-									res.writeHead(500, { 'Content-Type': 'text/plain' });
-									res.end('Server error');
-								} else {
-									let obj = { success: true };
-									res.writeHead(200, { 'Content-Type': 'text/plain' });
-									res.end(JSON.stringify(obj));
-								}
-							})
-						} catch(e) {
-							//error with JSON
-							res.writeHead(400, { 'Content-Type': 'text/plain' });
-							res.end('Error parsing JSON data!');
-						}
-					})
+					if (req.method === 'POST') {
+						let data = '';
+						req.on('data', (chunk) => {
+							data += chunk;
+						})
+						req.on('end', () => {
+							try {
+								let body = JSON.parse(data);
+								let {
+									comment, 
+									user_id,
+									reason //reason not being handled tho in mysql maybe add column
+								} = body;
+								let q = `INSERT INTO Flag VALUES (default, '${comment}', ${user_id}, 'CONFIRMED', 0)`;
+								db.query(q, (err, results) => {
+									//handle error
+									if (err) {
+										res.writeHead(500, { 'Content-Type': 'text/plain' });
+										res.end('Server error');
+									} else {
+										let obj = { success: true };
+										res.writeHead(200, { 'Content-Type': 'text/plain' });
+										res.end(JSON.stringify(obj));
+									}
+								})
+							} catch(e) {
+								//error with JSON
+								res.writeHead(400, { 'Content-Type': 'text/plain' });
+								res.end('Error parsing JSON data!');
+							}
+						})
+					} else {
+						res.writeHead(405, { 'Content-Type': 'text/plain' });
+						res.end('Wrong method type');
+					}
 				} else {
 					res.writeHead(404, { 'Content-Type': 'text/plain' });
 					res.end('This URL is not found.');
