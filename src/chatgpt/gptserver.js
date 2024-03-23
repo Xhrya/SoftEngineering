@@ -66,7 +66,10 @@ const server = http.createServer(async (req, res) => {
 
         req.on('end', async () => {
             try {
-                const userMessage = JSON.parse(body).userMessage;
+                const parsedBody = JSON.parse(body); // Attempt to parse JSON
+                const userMessage = parsedBody.userMessage;
+
+                // const userMessage = JSON.parse(body).userMessage;
                 // Add user's message to conversation history
                 conversationHistory.push({ role: "user", content: userMessage });
 
@@ -83,9 +86,12 @@ const server = http.createServer(async (req, res) => {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ response: aiResponse }));
             } catch (error) {
-                console.error("Error handling request:", error);
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: "Internal server error" }));
+                if (error instanceof SyntaxError) { // Catch JSON parsing errors
+                    console.error("Error handling request:", error);
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: "Malformed JSON data" }));
+                    return;
+                }
             }
         });
     } else {
@@ -96,3 +102,5 @@ const server = http.createServer(async (req, res) => {
 
 const PORT = 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+export { decryptContent, server }
