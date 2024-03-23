@@ -156,41 +156,34 @@ const router = (req, res) => {
 			res.writeHead(401, { 'Content-Type': 'text/plain' });
 			res.end('Authorization not provided.');
 		}
-	} else if (url.includes('/account/view?')) {
-		//THIS IS FOR ORDERS NOT VIEWING ACCOUNT DETAILS
+	} else if (url == '/account/view_sales') {
 		let auth_token = req.headers['authorization'];
 		if (auth_token) {
 			account_tools.verify(auth_token)
 			.then((data) => {
 				if (data.role == 0) {
 					if (req.method === 'GET') {
-						let parsed_url = url_lib.parse(req.url, true);
-						let query_params = parsed_url.query;
-						if (query_params.user_id) {
-							let q = `SELECT * FROM User WHERE user_id = '${query_params.user_id}'`;
-							db.query(q, (err, results) => {
-								//handle err
-								if (err) throw err;
-								if (err) {
-									res.writeHead(500, { 'Content-Type': 'text/plain' });
-									res.end('Server error');
+						let records = [];
+						let q = `SELECT * FROM Orders`;
+						db.query(q, (err, results) => {
+							if (err) {
+								res.writeHead(500, { 'Content-Type': 'text/plain' });
+								res.end('Server error');
+							} else {
+								if (results.length > 0) {
+									for (let i = 0; i < results.length; i++) {
+										records.push(results[i]);
+										if (i + 1 == results.length) {
+											res.writeHead(200, { 'Content-Type': 'text/plain' })
+											res.end(JSON.stringify({ success: true, records: records }));
+										}
+									}
 								} else {
-									if (results.length > 0) {
-										let obj = results[0];
-										res.writeHead(200, { 'Content-Type': 'text/plain' });
-										res.end(JSON.stringify(obj));
-									} else {
-										//bad user id
-										res.writeHead(400, { 'Content-Type': 'text/plain' })
-										res.end('Bad user ID.');
-									}		
+									res.writeHead(200, { 'Content-Type': 'text/plain' });
+									res.end('No order records');
 								}
-							})
-						} else {
-							//user_id not specified
-							res.writeHead(400, { 'Content-Type': 'text/plain' })
-							res.end('Bad user ID.');
-						}	
+							}
+						})
 					} else {
 						//wrong method
 						res.writeHead(405, { 'Content-Type': 'text/plain' });
@@ -212,6 +205,56 @@ const router = (req, res) => {
 			res.writeHead(401, { 'Content-Type': 'text/plain' });
 			res.end('Authorization not provided');
 		}			
+	} else if (url == '/account/generate_summary_report') {
+		if (req.method === 'POST') {
+			let auth_token = req.headers['authorization'];
+			if (auth_token) {
+				account_tools.verify(auth_token)
+				.then((data) => {
+					if (data.role == 0) {
+						let req_body = '';
+						req.on('data', (chunk) => {
+							req_body += chunk;
+						})
+						req.on('end', () => {
+							try {
+								let body = JSON.parse(req_body);
+								if (body.user_id && body.account_type) {
+									account_tools.generate_sales_report(body.user_id, body.account_type)
+									.then((sales_data) => {
+										res.writeHead(200, { 'Content-Type': 'text/plain' });
+										res.end(JSON.stringify(sales_data));
+									})
+									.catch((error) => {
+										res.writeHead(500, { 'Content-Type': 'text/plain' });
+										res.end('Server error');
+									})
+								} else {
+									res.writeHead(400, { 'Content-Type': 'text/plain' });
+									res.end('Missing fields');
+								}
+							} catch(e) {
+								res.writeHead(400, { 'Content-Type': 'text/plain' });
+								res.end('Error parsing JSON data!');
+							}
+						})
+					} else {
+						res.writeHead(401, { 'Content-Type': 'text/plain' });
+						res.end('Unauthorized User');
+					}
+				})
+				.catch((error) => {
+					res.writeHead(400, { 'Content-Type': 'text/plain' });
+					res.end('Token invalid.');
+				})
+			} else {
+				res.writeHead(401, { 'Content-Type': 'text/plain' });
+				res.end('Authorization not provided');
+			}
+		} else {
+			res.writeHead(405, { 'Content-Type': 'text/plain' });
+			res.end('Wrong method type');
+		}
 	} else {
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
                 res.end('This URL is not found.');
