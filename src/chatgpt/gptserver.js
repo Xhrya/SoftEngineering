@@ -13,6 +13,20 @@ const __dirname = dirname(__filename);
 // Load environment variables and check for errors
 const dotenvResult = config({ path: join(__dirname, "../../cred.env") });
 
+const maliciousPatterns = [
+    /SELECT.*FROM/,
+    /DELETE.*FROM/,
+    /UPDATE.*SET/,
+    /INSERT.*INTO/,
+    /UNION.*SELECT/,
+    /OR '1'='1'/,
+    /' OR '1'='1/
+];
+
+function isMalicious(input) {
+    return maliciousPatterns.some(pattern => pattern.test(input));
+}
+
 if (dotenvResult.error) {
     console.error("Error loading .env file:", dotenvResult.error);
     process.exit(1);
@@ -85,6 +99,13 @@ const server = http.createServer(async (req, res) => {
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ response: aiResponse }));
+                    if (isMalicious(userMessage)) {
+                        console.log('Malicious input detected');
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: "Invalid input. Please try again" }));
+                        return;
+                    }
+
             } catch (error) {
                 if (error instanceof SyntaxError) { // Catch JSON parsing errors
                     console.error("Error handling request:", error);
