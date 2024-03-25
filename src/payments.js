@@ -3,7 +3,8 @@ const fetch = require('node-fetch');
 const db = require('../db/db.js'); // Ensure this path is correct
 
 
-// Updated logTransaction function with duplicate check
+// Logs successful transactions to the table in the database titled TRANSACTIONS
+// Also checks for duplicate transactions and will not log duplicates
 async function logTransaction({ payment_id, transaction_id, amount, currency, payment_method, status, seller_account, patron_account }) {
     const checkQuery = `SELECT * FROM transactions WHERE payment_id = ?`;
     let existing;
