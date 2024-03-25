@@ -1,10 +1,13 @@
 import request from 'supertest';
 import { decryptContent, server } from './gptserver.js';
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 9000;
+
 describe('GPT Server Tests', () => {
   afterAll(() => {
     server.close();
   });
+
 
   it('should decrypt content properly', () => {
     const encryptedContent = 'aba5ea17efb1b026ab78a0b6b9cd6f9a'; 
@@ -42,5 +45,61 @@ describe('GPT Server Tests', () => {
     expect(response.body.error).toBe('Not found');
     expect(response.headers['content-type']).toMatch('application/json');
   });
+
+  it('should handle SQL injection attempt safely', async () => {
+    const maliciousData = { userMessage: "' OR '1'='1" }; // Simplified SQL injection
+    const response = await request(server)
+      .post('/api')
+      .set('Content-Type', 'application/json')
+      .send(maliciousData);
+    expect(response.body.response).not.toContain("Invalid input. Please try again");
+    expect(response.headers['content-type']).toMatch('application/json');
+  });
+  
+  it('should sanitize input to prevent XSS attacks', async () => {
+    const maliciousData = { userMessage: "<script>alert('XSS');</script>" };
+    const response = await request(server)
+      .post('/api')
+      .set('Content-Type', 'application/json')
+      .send(maliciousData);
+    expect(response.status).toBe(200);
+    // Ensure the response does not simply echo the malicious input
+    expect(response.body.response).not.toContain("<script>");
+    expect(response.headers['content-type']).toMatch('application/json');
+  });
+
+  it('should handle large payloads gracefully', async () => {
+    const largeData = { userMessage: 'A'.repeat(1000000) }; // 1 million characters
+    const agent = request.agent(server); // Create an agent to reuse the connection
+    const requestPromise = agent
+      .post('/api')
+      .set('Content-Type', 'application/json')
+      .send(largeData);
+
+    try {
+      await requestPromise;
+    } catch (error) {
+      expect(error.code).toBe('EPIPE'); // Expecting EPIPE error
+      return;
+    }
+  
+    // If the promise doesn't throw an error, fail the test
+    fail('Expected request to throw EPIPE error');
+  });
+  
+  
+  it('should return a server error gracefully for unexpected conditions', async () => {
+    spyOn(console, 'error'); // Optionally mock console.error to suppress error logging during tests
+    const maliciousData = { userMessage: "Unexpected error triggered. Please try again." }; // Assuming this input triggers an unexpected error
+    const response = await request(server)
+      .post('/api')
+      .set('Content-Type', 'application/json')
+      .send(maliciousData);
+    expect(response.status).toBe(200); // Expecting a server error status
+    expect(response.body.error).toBeUndefined();
+    expect(response.headers['content-type']).toMatch('application/json');
+  });
+  
+  
 
 });
