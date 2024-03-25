@@ -6,6 +6,9 @@ import OpenAI from 'openai';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
+const MAX_PAYLOAD_SIZE = 10e4; 
+const MAX_AI_RESPONSE_LENGTH = 10e9; 
+
 // Get the current file's directory
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -75,6 +78,14 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/api' && req.method === 'POST') {
         let body = '';
         req.on('data', chunk => {
+            size += chunk.length;
+            if (size > MAX_PAYLOAD_SIZE) {
+                console.log('Payload too large');
+                // Terminate request if payload is too large
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: "Payload too large. Please try again." }));
+                req.connection.destroy(); // Close the connection to prevent further data transmission
+            }
             body += chunk.toString();
         });
 
