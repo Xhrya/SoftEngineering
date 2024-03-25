@@ -1,4 +1,4 @@
-// communicator.js
+// communicatortest.js
 import fetch from 'node-fetch';
 import readline from 'readline';
 
