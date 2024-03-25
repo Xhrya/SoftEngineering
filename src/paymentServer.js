@@ -1,9 +1,7 @@
-// At the very top of server.js
 require('dotenv').config({ path: 'cred.env' });
-//console.log(process.env.STRIPE_SECRET_KEY);
 const http = require('http');
 const { URL } = require('url');
-const { handlePayment } = require('./payments.js'); // Adjust the path as necessary
+const { handlePayment } = require('./payments.js');
 
 const port = 3000;
 
