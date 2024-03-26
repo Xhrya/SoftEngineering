@@ -1,6 +1,6 @@
 const path = require('path');
 const mysql = require('mysql');
-require('dotenv').config({ path: path.join(__dirname, "../../cred.env") });
+require('dotenv').config({ path: path.join(__dirname, "../../../env/cred.env") });
 
 const connection = mysql.createConnection({ 
 	host: '127.0.0.1',

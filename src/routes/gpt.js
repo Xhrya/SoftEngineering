@@ -1,6 +1,6 @@
 const path = require('path');
 const OpenAI = require('openai');
-require('dotenv').config({ path: path.join(__dirname, "../../cred.env") });
+require('dotenv').config({ path: path.join(__dirname, "../../../env/cred.env") });
 
 const MAX_PAYLOAD_SIZE = 10e4; 
 const MAX_AI_RESPONSE_LENGTH = 10e9; 

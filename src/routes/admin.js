@@ -1,5 +1,5 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, "../../cred.env") });
+require('dotenv').config({ path: path.join(__dirname, "../../../env/cred.env") });
 
 const db = require(path.join(__dirname, "../tools/db.js"));
 const account_tools = require(path.join(__dirname, "../tools/account_tools.js"));

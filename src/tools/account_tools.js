@@ -1,6 +1,6 @@
 const path = require('path');
 const jwt = require('jsonwebtoken');
-require('dotenv').config({ path: path.join(__dirname, "../../cred.env") });
+require('dotenv').config({ path: path.join(__dirname, "../../../env/cred.env") });
 
 const db = require(path.join(__dirname, "./db.js"));
 
