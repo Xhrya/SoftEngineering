@@ -9,6 +9,7 @@ const account_routes = require(path.join(__dirname, "./routes/account.js"));
 const flag_routes = require(path.join(__dirname, "./routes/flag.js"));
 const ban_routes = require(path.join(__dirname, "./routes/ban.js"));
 const gpt_routes = require(path.join(__dirname, "./routes/gpt.js"));
+const payment_routes = require(path.join(__dirname, "./routes/payments.js"));
 
 const server = http.createServer((req, res) => {
 	//retrieve 'url' hitting the server
@@ -26,6 +27,8 @@ const server = http.createServer((req, res) => {
 		ban_routes(req, res);
 	} else if (route == 'gpt') {
 		gpt_routes(req, res);
+	} else if (route == 'payments') {
+		payment_routes(req, res);
 	} else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('This URL is not found.');		
