@@ -1,0 +1,37 @@
+Step 1: run "node .\db.js" in terminal to create database
+2: run " node .\generateOrder.js"
+3: Open Postman and go to http://localhost:3000/order/generation
+4: POST, and in the body pick JSON format
+5: insert in this format in the body section: 
+
+{
+    "customer": 123,               // ID of the customer placing the order (replace with actual customer ID)
+    "seller": 456,                 // ID of the seller fulfilling the order (replace with actual seller ID)
+    "items": "Item1, Item2",       // List of items in the order (replace with actual items)
+    "status": "pending",           // Status of the order (e.g., pending, processing, completed)
+    "total_price": 100.50          // Total price of the order (replace with actual total price)
+}
+
+6: Hit send and you should get a return saying something like:
+
+{
+    "message": "Data inserted successfully",
+    "orderId": 1
+}
+
+7: Now that data has been inserted, we can use an API to get/read the data
+8: Quit generateOrder.js by ctrl + C command, run "node .\getOrder.js"
+9: on postman, go to http://localhost:3000/orders and send a GET request
+10: All the orders in the database should come up 
+11: Next is updating the "order status" in the database for each order
+12: quit getOrder.js and run "node .\accept_deny.js"
+13: Go to http://localhost:3000/orders/${orderID}
+14: Send a PATCH request with the following format in the body, JSON:
+
+{"input":"accept"}
+15: Accept will change that particular orderID to "Approved" status
+"deny" input will change its status to "denied"
+-we can send this database info to customer emails
+
+16: use getOrder.js again to verify the changes made to the order status of the 
+specific orderIDs. 
