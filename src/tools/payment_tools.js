@@ -35,82 +35,67 @@ const processStripePayment = async (body, res) => {
     }
 
     // Check for duplicate payment ID
-    try {
-        const existingTransaction = await new Promise((resolve, reject) => {
-            db.query(`SELECT * FROM Transactions WHERE payment_id = ?`, [payment_id], (error, row) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(row);
-                }
-            });
-        });
-
-        if (existingTransaction) {
-            res.writeHead(409, { 'Content-Type': 'application/json' }); // 409 Conflict
-            res.end(JSON.stringify({ success: false, message: "Transaction with this payment ID already exists." }));
-            return;
-        }
-    } catch (dbError) {
-        console.error('Database error:', dbError);
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: false, message: "Internal server error." }));
-        return;
-    }
-
-    try {
-        // Proceed with Stripe charge creation
-        const charge = await stripe.charges.create({
-            amount,
-            currency: 'usd',
-            source,
-            description: 'Stripe Payment',
-        });
-
-        // Log the successful transaction
-        await logTransaction({
-            payment_id,
-            transaction_id: charge.id,
-            amount: charge.amount,
-            currency: charge.currency,
-            payment_method: 'Stripe',
-            status: charge.status, // Succeeded
-            seller_account,
-            patron_account,
-        });
-
-        // Respond with success
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, charge }));
-    } catch (error) {
-        console.error('Stripe payment error:', error);
-
-        // Distinguish between Stripe-specific and other types of errors
-        if (error.type === 'StripeCardError') {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: false, message: error.message }));
-        } else {
-            // Attempt to log the failed transaction
-            try {
-                await logTransaction({
-                    payment_id,
-                    transaction_id: null, // No transaction ID available due to failure
-                    amount: amount,
-                    currency: 'usd',
-                    payment_method: 'Stripe',
-                    status: 'failed', // Mark as failed
-                    seller_account,
-                    patron_account,
-                });
-            } catch (logError) {
-                console.error('Failed to log transaction:', logError);
-            }
-
-            // Respond with error
+    let q = `SELECT * FROM Transactions WHERE payment_id = ${payment_id}`;
+    db.query(q, async (error, results) => {
+        if (error) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: false, message: "Stripe payment processing failed." }));
+            res.end(JSON.stringify({ success: false, message: "Internal server error." }));
+        } else {
+            if (results.length > 0) {
+                res.writeHead(409, { 'Content-Type': 'application/json' }); // 409 Conflict
+                res.end(JSON.stringify({ success: false, message: "Transaction with this payment ID already exists." }));
+            } else {
+                try {
+                    const charge = await stripe.charges.create({
+                        amount,
+                        currency: 'usd',
+                        source,
+                        description: 'Stripe Payment',
+                    });
+                    // Log the successful transaction
+                    await logTransaction({
+                        payment_id,
+                        transaction_id: charge.id,
+                        amount: charge.amount,
+                        currency: charge.currency,
+                        payment_method: 'Stripe',
+                        status: charge.status, // Succeeded
+                        seller_account,
+                        patron_account,
+                    });
+
+                    // Respond with success
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: true, charge }));
+                } catch(e) {
+                    // Distinguish between Stripe-specific and other types of errors
+                    if (e.type === 'StripeCardError') {
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ success: false, message: e.message }));
+                    } else {
+                        // Attempt to log the failed transaction
+                        try {
+                            await logTransaction({
+                                payment_id,
+                                transaction_id: null, // No transaction ID available due to failure
+                                amount: amount,
+                                currency: 'usd',
+                                payment_method: 'Stripe',
+                                status: 'failed', // Mark as failed
+                                seller_account,
+                                patron_account,
+                            });
+                            // Respond with error
+                            res.writeHead(500, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ success: false, message: "Stripe payment processing failed." }));
+                        } catch (logError) {
+                            console.error('Failed to log transaction:', logError);
+                        }     
+                    }
+                } 
+            }
         }
-    }
+    })
 }
 
 const processPaypalPayment = async (body, res) => {
@@ -194,36 +179,15 @@ const logTransaction = async (data) => {
             seller_account, 
             patron_account 
     } = data;
-    const checkQuery = `SELECT * FROM Transactions WHERE payment_id = ?`;
-    let existing;
-    try {
-        existing = await new Promise((resolve, reject) => {
-            db.query(checkQuery, [payment_id], (error, row) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(row);
-                }
-            });
-        });
-    } catch (error) {
-        console.error('Failed to check for duplicate transaction:', error);
-        throw new Error('Database operation failed.');
-    }
- 
-    if (existing) {
-        console.log('Transaction with this payment ID already exists.');
-        return existing.id; // Return the existing transaction ID if it already exists
-    }
  
     // If the transaction does not exist, insert a new record
     const query = `
-        INSERT INTO transactions
+        INSERT INTO Transactions
         (payment_id, transaction_id, amount, currency, payment_method, status, seller_account, patron_account)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     return new Promise((resolve, reject) => {
-        db.query(query, [payment_id, transaction_id, amount, currency, payment_method, status, seller_account, patron_account], function(error) {
+        db.query(query, [parseInt(payment_id), transaction_id, parseFloat(amount), currency, payment_method, status, parseInt(seller_account), parseInt(patron_account)], function(error) {
             if (error) {
                 console.error('Failed to log transaction:', error);
                 reject(error);
