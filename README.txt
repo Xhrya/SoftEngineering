@@ -1,3 +1,6 @@
+What does the code do?
+Payments.js is the main code file that processes payment requests. It uses the Stripe API to process the payments, taking in the amount required for the order going through and using inputted payment information. In place of real credit card information, Stripe provides tokens that simulate acceptable credit cards. This code already checks for any missing data or duplicate payment requests.
+
 Before running the code, ensure that there is a table in the database present, or you can create one, called TRANSACTIONS
 
 - To run the code: ensure that you are root directory and type into the terminal `node ./src/paymentServer.js`
