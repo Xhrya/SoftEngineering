@@ -65,7 +65,7 @@
       }
       function sendInfoTOCreate(email) {
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', 'http://localhost:3010/account/create/user', true);
+      xhr.open('POST', 'http://3.94.158.251/account/create/user', true);
       xhr.setRequestHeader('Content-Type', 'application/json');
 
       // Gather data from form fields
@@ -112,7 +112,7 @@
 
       function sendEmailToLogin(email) {
           const xhr = new XMLHttpRequest();
-          xhr.open('POST', 'http://localhost:3010/account/login', true);
+          xhr.open('POST', 'http://3.94.158.251/account/login', true);
           xhr.setRequestHeader('Content-Type', 'application/json');
           const data = JSON.stringify({ email: email });
           xhr.onload = function() {

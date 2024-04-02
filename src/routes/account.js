@@ -66,6 +66,71 @@ const router = (req, res) => {
 			res.writeHead(405, { 'Content-Type': 'text/plain' });
 			res.end('Wrong method type');
 		}
+	} else if (url == '/account/create/user') {
+		if (req.method === 'POST') {
+			let req_body = '';
+			req.on('data', (chunk) => {
+				req_body += chunk;
+			})
+			req.on('end', () => {
+				try {
+					let obj;
+					let body = JSON.parse(req_body);
+					let {
+						username,
+						name, 
+						description,
+						category,
+						street_address,
+						email,
+						password,
+						role,
+					} = body;
+					//validate each entry and hash password
+					let q = `INSERT INTO User (username, name, email, password, status, role) VALUES (?, ?, ?, ?, 'active', ?)`;
+					db.query(q, [username, name, email, password, role], (err, results) => {
+						//handle error
+						if (err) {
+							res.writeHead(500, { 'Content-Type': 'text/plain' });
+							res.end('Server error');
+						} else {
+							obj = { success: true };
+
+						}
+					})
+					if (role == 2) {
+						let x = `SELECT * FROM User WHERE username = ?`; 
+						db.query(x, [username], (err, user) => {
+							if (err) {
+								res.writeHead(500, { 'Content-Type': 'text/plain' });
+								res.end('Server error');
+							} else {
+								let z = `UPDATE Seller SET name = ?, description = ?, category = ?, street_address = ? WHERE seller_id = ?`; 
+								db.query(z, [name, description, category, street_address, user.user_id], (updateErr) => {
+									if (updateErr) {
+										res.writeHead(500, { 'Content-Type': 'text/plain' });
+										res.end('Server error');
+									} else {
+										obj = { success: true };
+										
+									}
+								});
+							}
+						});
+					}
+					res.writeHead(200, { 'Content-Type': 'text/plain' });
+					res.end(JSON.stringify(obj));
+				} catch(e) {
+					//error JSON
+					res.writeHead(400, { 'Content-Type': 'text/plain' });
+					res.end('Error parsing JSON data!');
+				}
+			})
+		} else {
+			//wrong method
+			res.writeHead(405, { 'Content-Type': 'text/plain' });
+			res.end('Wrong method type');
+		}
 	} else if (url == '/account/verify') {
 		if (req.method === 'POST') {
 			let data = '';
