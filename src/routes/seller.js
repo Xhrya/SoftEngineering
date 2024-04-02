@@ -40,7 +40,7 @@ const router = async (req, res)  => {
                 [fields, files] = await form.parse(req);
                 let oldpath = files[''][0].filepath;
 
-                let newpath = './menuuploads/' + files[''][0].originalFilename;
+                let newpath = path.join(__dirname, `../../public/menus/${files[''][0].originalFilename}`);
                 fs.rename(oldpath, newpath, function (err) {
                   if (err) throw err; 
                   else{

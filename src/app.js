@@ -12,9 +12,12 @@ const ban_routes = require(path.join(__dirname, "./routes/ban.js"));
 const gpt_routes = require(path.join(__dirname, "./routes/gpt.js"));
 const payment_routes = require(path.join(__dirname, "./routes/payments.js"));
 const search_routes = require(path.join(__dirname, "./routes/search.js"));
-// const ticket_routes = require(path.join(__dirname, "./routes/ticket.js"));
-// const helpdesk_routes = require(path.join(__dirname, "./routes/helpdesk.js"));
-// const questions_routes = require(path.join(__dirname, "./routes/questions.js"));
+const seller_routes = require(path.join(__dirname, "./routes/seller.js"));
+const ticket_routes = require(path.join(__dirname, "./routes/ticket.js"));
+const helpdesk_routes = require(path.join(__dirname, "./routes/helpdesk.js"));
+const questions_routes = require(path.join(__dirname, "./routes/questions.js"));
+const order_routes = require(path.join(__dirname, "./routes/orders.js"));
+const cart_routes = require(path.join(__dirname, "./routes/cart.js"));
 
 const server = http.createServer((req, res) => {
 	//retrieve 'url' hitting the server
@@ -36,6 +39,18 @@ const server = http.createServer((req, res) => {
 		payment_routes(req, res);
 	} else if (route == 'search') {
 		search_routes(req, res);
+	} else if (route == 'orders') {
+		order_routes(req, res);
+	} else if (route == 'seller') {
+		seller_routes(req, res);
+	} else if (route == 'questions') {
+		questions_routes(req, res);
+	} else if (route == 'ticket') {
+		ticket_routes(req, res);
+	} else if (route == 'helpdesk') {
+		helpdesk_routes(req, res);
+	} else if (route == 'cart') {
+		cart_routes(req, res);
 	} else if (route == '') {
 		fs.readFile(path.join(__dirname, '../templates/views/google_login.html'), (err, data) => {
             if (err) {
