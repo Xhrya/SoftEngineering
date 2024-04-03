@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <!-- Include Socket.io client library -->
+    <script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
+    <link href="style.css" rel="stylesheet">
+    <!-- Include client-side JavaScript file -->
+    <script defer src="app.js"></script>
+    
+    
+</head>
+<body>
+    <main>
+        <!-- Add id to the form for joining the chat room -->
+        <form id="joinForm" class="form-join">
+            <input type="text" id="name" maxlength="16" placeholder="Your name" size="5" required>
+            <input type="text" id="room" maxlength="16" placeholder="Ticket ID" size="5" required>
+            <button id="join" type="submit">Join</button>
+            <!-- Add a button for leaving the chat room -->
+            <button id="leave" type="button" style="display: none;">Leave</button>
+        </form>
+        <ul class="chat-display" style="display: none;"></ul>
+        <p class="user-list" style="display: none;"></p>
+        <p class="room-list" style="display: none;"></p>
+        <p class="activity" style="display: none;"></p>
+        <!-- Add id to the form for sending messages -->
+        <form id="messageForm" class="form-msg" style="display: none;">
+            <input type="text" id="message" placeholder="Your message" required>
+            <button type="submit">Send</button>
+        </form>
+    </main>
+<!-- Inline script to initialize the Socket.io connection and handle events -->
+    <script>
+        const socket = io('https://livechattomer.onrender.com'); // Replace with your server URL
+        // Function to join the chat room
+        document.getElementById('joinForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const room = document.getElementById('room').value;
+            socket.emit('enterRoom', { name, room });
+            // Hide the join button and show the leave button
+            document.getElementById('join').style.display = 'none';
+            document.getElementById('leave').style.display = 'inline-block';
+            // Hide the ticket ID box
+            document.getElementById('room').style.display = 'none';
+            // Show the message input field and send button
+            document.getElementById('messageForm').style.display = 'block';
+            document.querySelector('.chat-display').style.display = 'block';
+            document.querySelector('.user-list').style.display = 'block';
+            document.querySelector('.room-list').style.display = 'block';
+            document.querySelector('.activity').style.display = 'block';
+        });
+
+         // Event listener to handle room full event
+         socket.on('roomFull', function () {
+             <!-- Add this section inside the <script> tag -->
+        // Event listener to handle room full event
+        socket.on('roomFull', function () {
+        alert('Sorry, the room is full. Please try another room.'); // Display an alert message
+        window.location.reload(); // Reload the page to allow joining another room
+        });
+        
+         });
+        // Function to leave the chat room
+        document.getElementById('leave').addEventListener('click', function () {
+            socket.emit('leaveRoom'); // Emit 'leaveRoom' event to the server
+            window.location.reload(); // Reload the page on leave
+        });
+        // Function to send a message
+        document.getElementById('messageForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const message = document.getElementById('message').value;
+            const name = document.getElementById('name').value;
+            socket.emit('message', { name, text: message });
+            document.getElementById('message').value = ''; // Clear the input field
+        });
+
+        // Event listener to handle incoming messages
+         socket.on('message', function (data) {
+ const { name, text, time } = data;
+            const message = `<li>${name} (${time}): ${text}</li>`;
+            document.querySelector('.chat-display').innerHTML += message;
+        });
+
+        // Event listener to update the user list
+        socket.on('userList', function (data) {
+            const users = data.users;
+            let userList = '<em>Connected:</em><br>';
+            users.forEach(function (user) {
+                userList += `${user.name}<br>`;
+            });
+            document.querySelector('.user-list').innerHTML = userList;
+        });
+        // Event listener to update the room list
+        socket.on('roomList', function (data) {
+            const rooms = data.rooms;
+            let roomList = '<em>Ticket ID:</em><br>';
+            rooms.forEach(function (room) {
+                roomList += `${room}<br>`;
+            });
+            document.querySelector('.room-list').innerHTML = roomList;
+        });
+        // Event listener to handle typing activity
+        document.getElementById('message').addEventListener('keypress', function () {
+            socket.emit('activity', document.getElementById('name').value);
+        });
+        // Event listener to display typing activity
+        socket.on('activity', function (name) {
+            document.querySelector('.activity').textContent = `${name} is typing...`;
+        });
+    </script>
+</body>
+</html>
