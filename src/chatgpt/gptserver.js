@@ -6,8 +6,8 @@ import OpenAI from 'openai';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-const MAX_PAYLOAD_SIZE = 10e4; 
-const MAX_AI_RESPONSE_LENGTH = 10e9; 
+const MAX_PAYLOAD_SIZE = 10e4;
+const MAX_AI_RESPONSE_LENGTH = 10e9;
 
 // Get the current file's directory
 const __filename = fileURLToPath(import.meta.url);
@@ -99,34 +99,41 @@ const server = http.createServer(async (req, res) => {
                         return;
                     }
 
-                    const completion = await openai.chat.completions.create({
-                        messages: conversationHistory,
-                        model: "gpt-3.5-turbo-0125",
-                        response_format: { type: "json_object" },
-                    });
+                    try {
+                        const completion = await openai.chat.completions.create({
+                            messages: conversationHistory,
+                            model: "gpt-3.5-turbo-0125",
+                            response_format: { type: "json_object" },
+                        });
 
-                    const aiResponse = completion.choices[0].message.content;
+                        const aiResponse = completion.choices[0].message.content;
 
-                    console.log('AI response:', aiResponse);
+                        console.log('AI response:', aiResponse);
 
-                    // Check if AI response exceeds maximum allowed length
-                    if (aiResponse.length > MAX_AI_RESPONSE_LENGTH) { // Updated length check
-                        console.log('AI response exceeds maximum allowed length');
-                        res.writeHead(400, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: "AI response exceeds maximum allowed length" }));
-                    } else {
-                        conversationHistory.push({ role: "assistant", content: aiResponse });
+                        // Check if AI response exceeds maximum allowed length
+                        if (aiResponse.length > MAX_AI_RESPONSE_LENGTH) { // Updated length check
+                            console.log('AI response exceeds maximum allowed length');
+                            res.writeHead(400, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ error: "AI response exceeds maximum allowed length" }));
+                        } else {
+                            conversationHistory.push({ role: "assistant", content: aiResponse });
 
-                        // Check if the response is still writable before sending the response
-                        if (!res.writableEnded) {
-                            res.writeHead(200, { 'Content-Type': 'application/json' });
-                            res.write(JSON.stringify({ response: aiResponse }), (error) => {
-                                if (error) {
-                                    console.error("Error writing response:", error);
-                                }
-                                res.end();
-                            });
+                            // Check if the response is still writable before sending the response
+                            if (!res.writableEnded) {
+                                res.writeHead(200, { 'Content-Type': 'application/json' });
+                                res.write(JSON.stringify({ response: aiResponse }), (error) => {
+                                    if (error) {
+                                        console.error("Error writing response:", error);
+                                    }
+                                    res.end();
+                                });
+                            }
                         }
+                    } catch (error) {
+                        console.error(error);
+                        // Handle OpenAI API errors
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: "Internal server error" }));
                     }
                 }
             } catch (error) {
@@ -148,8 +155,6 @@ const server = http.createServer(async (req, res) => {
         console.error("Error writing response:", error);
     });
 });
-
-
 
 const PORT = 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
