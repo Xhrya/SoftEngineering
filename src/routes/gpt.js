@@ -79,6 +79,9 @@ const router = (req, res) => {
                         }
                     } catch (error) {
                         console.error(error);
+                        // Handle OpenAI API errors
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: "Internal server error" }));
                     }
                 }
             } catch (error) {
