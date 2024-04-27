@@ -62,6 +62,17 @@ let conversationHistory = [
 ];
 
 const server = http.createServer(async (req, res) => {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, POST');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
     const { pathname } = parse(req.url, true);
 
     console.log(`Request received for ${pathname}`);
@@ -85,6 +96,7 @@ const server = http.createServer(async (req, res) => {
         req.on('end', async () => {
             try {
                 console.log('Request body received:', body);
+                const parsedBody = JSON.parse(body);
 
                 if (size <= MAX_PAYLOAD_SIZE) {
                     const parsedBody = JSON.parse(body);
@@ -130,10 +142,10 @@ const server = http.createServer(async (req, res) => {
                             }
                         }
                     } catch (error) {
-                        console.error(error);
-                        // Handle OpenAI API errors
-                        res.writeHead(500, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: "Internal server error" }));
+                        console.error("Error parsing JSON:", error);
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: "Malformed JSON data" }));
+                        return;
                     }
                 }
             } catch (error) {
