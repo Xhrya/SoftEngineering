@@ -1,6 +1,4 @@
-// communicator.js
-
-import fetch from 'node-fetch';
+// communicator-index.js
 
 const API_URL = 'http://localhost:3000/api';
 
@@ -19,12 +17,17 @@ async function sendMessageToServer(userMessage) {
         }
 
         const data = await response.json();
-        console.log('Response from GPT:', data.response);
-        return data.response; // Return the response for potential future use
+        console.log('Response from GPT:', data);  // Log the full response object
+
+        // Assuming 'data.response' is a JSON string, parse it to get the actual message object
+        const messageObject = JSON.parse(data.response);
+        console.log('Parsed message:', messageObject);  // Log the parsed message object to ensure correct parsing
+
+        return messageObject.message;  // Return the 'message' field from the parsed message object
     } catch (error) {
         console.error('Error sending message to server:', error);
-        throw error; // Re-throw the error for potential error handling outside of this function
+        throw error;
     }
 }
 
-export { sendMessageToServer, handleServerResponse };
+export { sendMessageToServer };
