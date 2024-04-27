@@ -63,9 +63,15 @@ let conversationHistory = [
 
 const server = http.createServer(async (req, res) => {
     // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const allowedOrigins = ['http://127.0.0.1:5500', 'http://localhost:5500']; // Add your client application origins here
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
     res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, POST');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Credentials', 'true'); // Allow credentials (cookies)
+
 
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
