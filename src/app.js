@@ -1,6 +1,6 @@
 // app.js
 
-import { sendMessageToServer } from "./chatgpt/communicator-index.js";
+import { sendMessageToServer } from "./chatgpt/communicator.js";
 
 document.getElementById('user-input').addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
