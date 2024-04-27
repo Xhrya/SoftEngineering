@@ -1,6 +1,7 @@
 const path = require('path');
 const http = require('http');
 const fs = require('fs');
+const ws = require('ws');
 require('dotenv').config({ path: path.join(__dirname, "../../env/cred.env") });
 
 const port = process.env.PORT;
@@ -18,6 +19,35 @@ const helpdesk_routes = require(path.join(__dirname, "./routes/helpdesk.js"));
 const questions_routes = require(path.join(__dirname, "./routes/questions.js"));
 const order_routes = require(path.join(__dirname, "./routes/orders.js"));
 const cart_routes = require(path.join(__dirname, "./routes/cart.js"));
+const video_chat_routes = require(path.join(__dirname, "./routes/video_chat.js"));
+
+const video_chat_wss = require(path.join(__dirname, "./tools/video_chat_ws.js"));
+
+const send_file = (view_route, type) => {
+	return new Promise((resolve, reject) => {
+        fs.readFile(view_route, (err, data) => {
+            if (err) {
+                reject({
+                    code: 500,
+                    content_type: text_content,
+                    m: 'Error reading HTML file, please try again.'
+                })
+            } else {
+                resolve({ 
+                    code: 200,
+                    content_type: type,
+                    m: data
+                })
+            }
+        });
+    })
+}
+
+const send_response = (res, data) => {
+	console.log(data);
+	res.writeHead(data.code, { 'Content-Type': data.content_type });
+    res.end(data.m);
+}
 
 const server = http.createServer((req, res) => {
 	//retrieve 'url' hitting the server
@@ -61,10 +91,39 @@ const server = http.createServer((req, res) => {
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.end(data);
         });
+	} else if (route == 'video_chat') {
+		video_chat_routes(req, res);
+	} else if (route == 'video_chat.js') {
+		let file = path.join(__dirname, "../public/js/video_chat.js");
+		send_file(file, 'application/javascript')
+		.then((data) => {
+			send_response(res, data);
+		})
+		.catch((err) => {
+			send_response(res, err);
+		})
+	} else if (route == 'video_chat.css') {
+		let file = path.join(__dirname, "../public/css/video_chat.css");
+		send_file(file, 'text/css')
+		.then((data) => {
+			send_response(res, data);
+		})
+		.catch((err) => {
+			send_response(res, err);
+		})
 	} else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('This URL is not found.');		
-	}
+	} 
+})
+
+const wss = new ws.WebSocketServer({ noServer: true });
+wss.on('connection', video_chat_wss.handler);
+
+server.on('upgrade', (request, socket, head) => {
+	wss.handleUpgrade(request, socket, head, (socket) => {
+		wss.emit('connection', socket, request);
+	})
 })
 
 server.listen(port, () => {

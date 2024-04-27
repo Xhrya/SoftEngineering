@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>WEBRTC demo</title>
+		<link rel="stylesheet" href="/video_chat.css">
+	</head>
+	<body>
+		<input type="hidden" id="caller_id">
+		<input type="hidden" id="caller_name">
+		<input type="hidden" id="offer">
+
+		<div id="login">
+			<p id="instructions">Please type name, and enter.</p>
+			<input type="text" placeholder="Name" id="name">
+			<button id="enter">Enter</button>
+		</div>
+
+		<div id="contacts">
+			<p>Active users</p>
+			<br>
+		</div>
+
+		<div id="talk">
+			<video id="call_video" width="320" height="320" autoplay controls="false" playsinline></video>
+		</div>
+		<div id="calling_alert" class="modal">
+			<div class="modal-content">
+				<p id="calling_message"></p>
+			</div>
+		</div>
+
+		<div id="call_alert" class="modal">
+			<div class="modal-content">
+				<p id="caller_message"></p>
+				<div id="calling_buttons">
+					<button class="modal-button" id="accept">Accept</button>
+					<button class="modal-button" id="decline">Decline</button>
+				</div>
+			</div>
+		</div>
+
+		<script src="/video_chat.js"></script>
+	</body>
+</html>

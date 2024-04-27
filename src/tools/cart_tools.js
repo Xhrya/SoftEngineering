@@ -30,7 +30,7 @@ function addItem(order_id, menu_item_id, name, price, quantity, availability, ca
 }
 
 function removeItem(order_id, menu_item_id, callback){          //Remove item completely from cart
-    db.run('DELETE FROM ShoppingCart WHERE menu_item_id = ? AND order_id = ?', [menu_item_id, order_id], function(err){
+    db.query('DELETE FROM ShoppingCart WHERE menu_item_id = ? AND order_id = ?', [menu_item_id, order_id], function(err){
         if(err) {
             console.error(`Error removing item from cart: `, err);
         }
@@ -45,7 +45,7 @@ function updateQuantity(order_id, menu_item_id, newQuant, callback){       //Set
         removeItem(order_id, menu_item_id, callback)
     }
     else {
-        db.run(`UPDATE ShoppingCart SET quantity = ? WHERE menu_item_id = ? AND order_id = ?`, [newQuant, menu_item_id, order_id], function(err){
+        db.query(`UPDATE ShoppingCart SET quantity = ? WHERE menu_item_id = ? AND order_id = ?`, [newQuant, menu_item_id, order_id], function(err){
             if(err){ 
                 console.error(`Error changing quantity of item in cart: `, err);
                 callback(err);}
@@ -116,7 +116,7 @@ function getTotalPrice(order_id, callback){   //Get total price of all items in 
 }
 
 function clearCart(order_id, callback){   //Remove all items from cart
-    db.run('DELETE FROM ShoppingCart WHERE order_id = ?', [order_id], function(err){
+    db.query('DELETE FROM ShoppingCart WHERE order_id = ?', [order_id], function(err){
         if(err){
             console.error(`Error clearing your cart: `, err);
             callback(err);
@@ -129,7 +129,7 @@ function clearCart(order_id, callback){   //Remove all items from cart
 }
 
 function getItemQuantity(order_id, menu_item_id, callback) { //Return item quantity
-    db.get(`SELECT quantity FROM ShoppingCart WHERE menu_item_id = ? AND order_id = ?`, [menu_item_id, order_id], function(err, row) {
+    db.query(`SELECT quantity FROM ShoppingCart WHERE menu_item_id = ? AND order_id = ?`, [menu_item_id, order_id], function(err, row) {
         if (err) {
             console.error(`Error obtaining quantity of item`, err);
             callback(err, null);
@@ -140,7 +140,7 @@ function getItemQuantity(order_id, menu_item_id, callback) { //Return item quant
     });
 }
 function getItemPrice(order_id, menu_item_id, callback){    //Returns price of single item which will be used as a display
-    db.get(`SELECT price FROM ShoppingCart WHERE menu_item_id = ? AND order_id = ?`, [menu_item_id, order_id], function(err, row) {
+    db.query(`SELECT price FROM ShoppingCart WHERE menu_item_id = ? AND order_id = ?`, [menu_item_id, order_id], function(err, row) {
         if (err) {
             console.error(`Error obtaining price of item`, err);
             callback(err, null);
@@ -152,7 +152,7 @@ function getItemPrice(order_id, menu_item_id, callback){    //Returns price of s
 }
 
 function getItemTotal(order_id, menu_item_id, callback){   //Get total price of an item with quantity > 1
-    db.get(`SELECT SUM(price * quantity) AS total FROM ShoppingCart WHERE order_id = ? AND menu_item_id = ?`, [order_id, menu_item_id], function(err,row){
+    db.query(`SELECT SUM(price * quantity) AS total FROM ShoppingCart WHERE order_id = ? AND menu_item_id = ?`, [order_id, menu_item_id], function(err,row){
         if(err){
             console.error(`Error obtaining item total price: `, err);
         callback(err);}
@@ -168,7 +168,7 @@ function getItemTotal(order_id, menu_item_id, callback){   //Get total price of 
 function reviewCart(order_id, callback) {
     const prompt = `SELECT menu_item_id, name, quantity, price FROM ShoppingCart WHERE order_id = ?`;
 
-    db.all(prompt, [order_id], function(err, rows) {
+    db.query(prompt, [order_id], function(err, rows) {
         if (err) {
             console.error('Error reviewing your cart:', err);
             callback(err, null);

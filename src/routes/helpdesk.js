@@ -35,7 +35,7 @@ const router = (req, res) => {
 							});
 							
 							const r = `SELECT * FROM Questions`;
-							db.all(r, (err, results) => {
+							db.query(r, (err, results) => {
 							if (err) {
 							res.writeHead(500, { 'Content-Type': 'text/plain' });
 							res.end('Server error');
