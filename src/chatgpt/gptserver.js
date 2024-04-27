@@ -15,6 +15,10 @@ const __dirname = dirname(__filename);
 
 // Load environment variables and check for errors
 const dotenvResult = config({ path: join(__dirname, "../../cred.env") });
+if (dotenvResult.error) {
+    console.error("Error loading .env file:", dotenvResult.error);
+    process.exit(1);
+}
 
 const maliciousPatterns = [
     /SELECT.*FROM/,
@@ -28,11 +32,6 @@ const maliciousPatterns = [
 
 function isMalicious(input) {
     return maliciousPatterns.some(pattern => pattern.test(input));
-}
-
-if (dotenvResult.error) {
-    console.error("Error loading .env file:", dotenvResult.error);
-    process.exit(1);
 }
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -63,7 +62,7 @@ let conversationHistory = [
 
 const server = http.createServer(async (req, res) => {
     // Set CORS headers
-    const allowedOrigins = ['http://127.0.0.1:5500', 'http://localhost:5500']; // Add your client application origins here
+    const allowedOrigins = ['http://127.0.0.1:5500', 'http://localhost:5500']; 
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
