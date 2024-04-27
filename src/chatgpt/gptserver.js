@@ -115,6 +115,20 @@ const handleApiRequest = async (req, res) => {
         body += chunk.toString();
     });
 
+    req.on('error', (error) => {
+        if (error.code === 'EPIPE') {
+            console.log('Connection closed due to large payload');
+            // Respond with an error message
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: "Connection closed due to large payload" }));
+        } else {
+            console.error("Request error:", error);
+            // Handle other request errors
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: "Internal server error" }));
+        }
+    });
+    
 
     req.on('end', async () => {
         try {
