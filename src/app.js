@@ -1,25 +1,36 @@
-const path = require('path');
-const http = require('http');
-require('dotenv').config({ path: path.join(__dirname, "../cred.env") });
+// app.js
 
-const port = process.env.PORT;
+import { sendMessageToServer } from "./chatgpt/communicator-index.js";
 
-const admin_routes = require(path.join(__dirname, "./routes/admin.js"));
-const account_routes = require(path.join(__dirname, "./routes/account.js"));
+document.getElementById('user-input').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        sendUserMessage();
+    }
+});
 
-const server = http.createServer((req, res) => {
-	//retrieve 'url' hitting the server
-	let { url } = req;
-	//get resource 
-	let route = url.split('/')[1];
+document.querySelector('.send-button').addEventListener('click', sendUserMessage);
 
-	if (route == 'account') {
-		account_routes(req, res);
-	} else {
-		res.end('Welcome to MunchMate!');
-	}
-})
+export async function sendUserMessage() {
+    const inputField = document.getElementById('user-input');
+    const message = inputField.value.trim();
+    if (message) {
+        appendMessage('You', message);
+        inputField.value = '';
+        try {
+            const messageText = await sendMessageToServer(message);
+            appendMessage('Bot', messageText);
+        } catch (error) {
+            console.error('Error:', error);
+            appendMessage('Bot', 'Sorry, I encountered an error. Please try again.');
+        }
+    }
+}
 
-server.listen(port, () => {
-	console.log(`Server is running on port ${port}`);
-})
+function appendMessage(sender, message) {
+    const chatBox = document.getElementById('chat-box');
+    const messageDiv = document.createElement('div');
+    messageDiv.textContent = `${sender}: ${message}`;
+    messageDiv.classList.add(sender === 'You' ? 'user-message' : 'bot-message');
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
+}
