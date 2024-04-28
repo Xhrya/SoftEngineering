@@ -28,17 +28,20 @@ const router = (req, res) => {
 						db.query(q, (err, results) => {
 							//handle error
 							if (err) {
-								res.writeHead(500, { 'Content-Type': 'text/plain' });
-								res.end('Server error');
+								res.writeHead(500, { 'Content-Type': 'application/json' });
+								let o = {
+									success: false
+								}
+								res.end(JSON.stringify(o));
 							} else {
-								let obj = { flags: results };
-								res.writeHead(200, { 'Content-Type': 'text/plain' });
+								let obj = { success: true, flags: results };
+								res.writeHead(200, { 'Content-Type': 'application/json' });
 								res.end(JSON.stringify(obj));
 							}
 						})
 					} else {
-						res.writeHead(405, { 'Content-Type': 'text/plain' });
-						res.end('Wrong method type');
+						res.writeHead(405, { 'Content-Type': 'application/json' });
+						res.end(JSON.stringify({ success: false }));
 					}
 				} else if (url == '/flags/warn') {
 					if (req.method === 'POST') {

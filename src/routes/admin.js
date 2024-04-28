@@ -3,6 +3,7 @@ require('dotenv').config({ path: path.join(__dirname, "../../../env/cred.env") }
 
 const db = require(path.join(__dirname, "../tools/db.js"));
 const account_tools = require(path.join(__dirname, "../tools/account_tools.js"));
+const { send_file, send_response, send_json_res } = require(path.join(__dirname, "../tools/file_sending.js"));
 
 const router = (req, res) => {
 	let { url } = req;
@@ -18,20 +19,26 @@ const router = (req, res) => {
 						db.query(q, (err, results) => {
 							//handle error
 							if (err) {
-								res.writeHead(500, { 'Content-Type': 'text/plain' });
-								res.end('Server error');
+								send_json_res(res, {
+									code: 500,
+									m: { success: false }
+								})
 							} else {
-								res.writeHead(200, { 'Content-Type': 'text/plain' });
-								let obj = {
-									users: results
-								}
-								res.end(JSON.stringify(obj));
+								send_json_res(res, {
+									code: 200,
+									m: {
+										success: true,
+										users: results
+									}
+								})
 							}
 						})
 					} else {
 						//bad method
-						res.writeHead(405, { 'Content-Type': 'text/plain' });
-						res.end('Wrong method type');
+						send_json_res(res, {
+							code: 405,
+							m: { success: false }
+						})
 					}	
 				} else {
 					res.writeHead(404, { 'Content-Type': 'text/plain' });
@@ -49,9 +56,20 @@ const router = (req, res) => {
 			res.end('Token invalid.');
 		})
 	} else {
-		//no token
-		res.writeHead(401, { 'Content-Type': 'text/plain' });
-		res.end('Authorization not provided.');
+		if (url == '/admin/dashboard') {
+			let file = path.join(__dirname, "../../templates/views/admin_dashboard.html");
+			send_file(file, 'text/html')
+			.then((data) => {
+				send_response(res, data);
+			})
+			.catch((error) => {
+				send_response(res, error);
+			})
+		} else {
+			//no token
+			res.writeHead(401, { 'Content-Type': 'text/plain' });
+			res.end('Authorization not provided.');
+		}
 	}
 }
 

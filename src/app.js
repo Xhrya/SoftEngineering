@@ -44,7 +44,6 @@ const send_file = (view_route, type) => {
 }
 
 const send_response = (res, data) => {
-	console.log(data);
 	res.writeHead(data.code, { 'Content-Type': data.content_type });
     res.end(data.m);
 }
@@ -53,7 +52,8 @@ const server = http.createServer((req, res) => {
 	//retrieve 'url' hitting the server
 	let { url } = req;
 	//get resource 
-	let route = url.split('/')[1];
+	let url_parts = url.split('/');
+	let route = url_parts[1];
 
 	if (route == 'account') {
 		account_routes(req, res);
@@ -93,8 +93,8 @@ const server = http.createServer((req, res) => {
         });
 	} else if (route == 'video_chat') {
 		video_chat_routes(req, res);
-	} else if (route == 'video_chat.js') {
-		let file = path.join(__dirname, "../public/js/video_chat.js");
+	} else if (route == 'js') {
+		let file = path.join(__dirname, `../public/js/${url_parts[2]}`);
 		send_file(file, 'application/javascript')
 		.then((data) => {
 			send_response(res, data);
@@ -102,8 +102,8 @@ const server = http.createServer((req, res) => {
 		.catch((err) => {
 			send_response(res, err);
 		})
-	} else if (route == 'video_chat.css') {
-		let file = path.join(__dirname, "../public/css/video_chat.css");
+	} else if (route == 'css') {
+		let file = path.join(__dirname, `../public/css/${url_parts[2]}`);
 		send_file(file, 'text/css')
 		.then((data) => {
 			send_response(res, data);

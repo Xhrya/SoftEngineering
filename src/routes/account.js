@@ -5,6 +5,8 @@ require('dotenv').config({ path: path.join(__dirname, "../../../env/cred.env") }
 
 const db = require(path.join(__dirname, "../tools/db.js"));
 const account_tools = require(path.join(__dirname, "../tools/account_tools.js"));
+const { send_file, send_response, send_json_res } = require(path.join(__dirname, "../tools/file_sending.js"));
+
 
 const router = (req, res) => {
 	let { url } = req;
@@ -28,7 +30,11 @@ const router = (req, res) => {
 						if (err) throw err;
 						if (err) {
 							res.writeHead(500, { 'Content-Type': 'text/plain' });
-							res.end('Server error');
+							let obj = {
+								success: false, 
+								message: 'Server error'
+							}
+							res.end(JSON.stringify(obj));
 						} else {
 							if (results.length > 0) {
 								//should store hashed passwords using crypto js
@@ -43,16 +49,24 @@ const router = (req, res) => {
 									let token = jwt.sign(obj, process.env.JWT_SECRET);
 									//write response header
 									res.writeHead(200, { 'Content-Type': 'text/plain' });
-									res.end(token);
+									res.end(JSON.stringify({ success: true, token: token }));
 								} else {
 									//password not match
 									res.writeHead(401, { 'Content-Type': 'text/plain' });
-									res.end('Wrong password');
+									let obj = {
+										success: false,
+										message: 'Wrong password'
+									}
+									res.end(JSON.stringify(obj));
 								}
 							} else {
 								//username not exist :(
 								res.writeHead(401, { 'Content-Type': 'text/plain' });
-								res.end('Account does not exist');
+								let obj = {
+									success: false,
+									message: 'Account does not exist'
+								}
+								res.end(JSON.stringify(obj));
 							}
 						}
 					})
@@ -66,6 +80,15 @@ const router = (req, res) => {
 			res.writeHead(405, { 'Content-Type': 'text/plain' });
 			res.end('Wrong method type');
 		}
+	} else if (url == '/account/admin_login/view') {
+		let file = path.join(__dirname, "../../templates/views/admin_login.html");
+		send_file(file, 'text/html')
+		.then((data) => {
+			send_response(res, data);
+		})
+		.catch((error) => {
+			send_response(res, error);
+		})
 	} else if (url == '/account/create/user') {
 		if (req.method === 'POST') {
 			let req_body = '';
@@ -154,22 +177,38 @@ const router = (req, res) => {
 					account_tools.verify(body.token)
 					.then((data) => {
 						res.writeHead(200, { 'Content-Type': 'application/json' });
-						res.end(JSON.stringify(decoded));
+						let o = {
+							success: true, 
+							user: data
+						}
+						res.end(JSON.stringify(o));
 					})
 					.catch((error) => {
 						//handle error
 						res.writeHead(400, { 'Content-Type': 'text/plain' });
-						res.end('Token invalid.');
+						let o = {
+							success: false,
+							message: 'Token invalid.'
+						}
+						res.end(JSON.stringify(o));
 					})
 				} catch(e) {
 					//error with JSON
+					let o = {
+						success: false,
+						message: 'JSON error'
+					}
 					res.writeHead(400, { 'Content-Type': 'text/plain' });
-					res.end('Error parsing JSON data!');
+					res.end(JSON.stringify(o));
 				}
 			})
 		} else {
 			res.writeHead(405, { 'Content-Type': 'text/plain' });
-			res.end('Wrong method type');
+			let o = {
+				success: false,
+				message: 'Wrong method type'
+			}
+			res.end(JSON.stringify(o));
 		}
 	} else if (url == '/account/create') {
 		//check if user is signed in first and verify admin permission
@@ -242,38 +281,65 @@ const router = (req, res) => {
 						let q = `SELECT * FROM Orders`;
 						db.query(q, (err, results) => {
 							if (err) {
-								res.writeHead(500, { 'Content-Type': 'text/plain' });
-								res.end('Server error');
+								send_json_res(res, {
+									code: 500,
+									m: {
+										success: false,
+										message: 'Server error'
+									}
+								})
 							} else {
 								if (results.length > 0) {
 									for (let i = 0; i < results.length; i++) {
 										records.push(results[i]);
 										if (i + 1 == results.length) {
-											res.writeHead(200, { 'Content-Type': 'text/plain' })
-											res.end(JSON.stringify({ success: true, records: records }));
+											send_json_res(res, {
+												code: 200,
+												m: {
+													success: true,
+													records: records
+												}
+											})
 										}
 									}
 								} else {
-									res.writeHead(200, { 'Content-Type': 'text/plain' });
-									res.end('No order records');
+									send_json_res(res, {
+										code: 200,
+										m: {
+											success: true,
+											records: ''
+										}
+									})
 								}
 							}
 						})
 					} else {
 						//wrong method
-						res.writeHead(405, { 'Content-Type': 'text/plain' });
-						res.end('Wrong method type');
+						send_json_res(res, {
+							code: 405,
+							m: {
+								success: false
+							}
+						})
 					}
 				} else {
 					//unauthorized
-					res.writeHead(401, { 'Content-Type': 'text/plain' });
-					res.end('Unauthorized User');
+					send_json_res(res, {
+						code: 401,
+						m: {
+							success: false
+						}
+					})
 				}
 			})
 			.catch((error) => {
 				//signout user bad token
-				res.writeHead(400, { 'Content-Type': 'text/plain' });
-				res.end('Token invalid.');
+				send_json_res(res, {
+					code: 400,
+					m: {
+						success: false
+					}
+				})
 			})
 		} else {
 			//unauthorized

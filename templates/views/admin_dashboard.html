@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Dashboard</title>
+    </head>
+    <body>
+        <h1 id="welcome"></h1>
+
+        <div id="flags">
+            <p id="flag_message"></p>
+            <a href="/flag/view">Flags</a>
+            <table id="flag_table">
+                <thead>
+                    <tr>
+                        <th>Flag ID</th>
+                        <th>Comment</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="flag_list"></tbody>
+            </table>
+        </div>
+
+        <div id="sales">
+            <p id="sales_message"></p>
+            <a href="/admin/sales">Sales</a>
+            <table id="sales_table">
+                <thead>
+                    <tr>
+                        <th>Items</th>
+                        <th>Status</th>
+                        <th>Total Price</th>
+                    </tr>
+                </thead>
+                <tbody id="sales_list"></tbody>
+            </table>
+        </div>
+
+        <div id="users">
+            <p id="users_message"></p>
+            <a href="/admin/users">Sales</a>
+            <table id="user_table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody id="user_list"></tbody>
+            </table>
+        </div>
+
+        <script src="/js/admin_dashboard.js"></script>
+    </body>
+</html>
