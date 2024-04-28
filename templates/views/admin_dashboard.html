@@ -1,11 +1,83 @@
+<!-- 
 <!DOCTYPE html>
-
 <html>
-    <head>
-        <title>Dashboard</title>
-    </head>
-    <body>
-        <h1 id="welcome"></h1>
+<head>
+    <title>Admin Dashboard</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+        a {
+            text-decoration: none;
+            color: #333;
+            padding: 5px 10px;
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        a:hover {
+            background-color: #ddd;
+        }
+        #welcome {
+            margin: 20px;
+            font-size: 2em;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        .dashboard-section {
+            margin: 20px 0;
+        }
+        .dashboard-section h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+    </header>
+    <div class="container">
+        <h1 id="welcome">Welcome, Admin!</h1>
+
+       
+        <h2>Flags Overview</h2>
 
         <div id="flags">
             <p id="flag_message"></p>
@@ -22,8 +94,10 @@
                 <tbody id="flag_list"></tbody>
             </table>
         </div>
+        
+        <h2>Sales Overview</h2>
 
-        <div id="sales">
+          <div id="sales">
             <p id="sales_message"></p>
             <a href="/admin/sales">Sales</a>
             <table id="sales_table">
@@ -38,6 +112,7 @@
             </table>
         </div>
 
+        <h2>Employees Overview</h2>
         <div id="users">
             <p id="users_message"></p>
             <a href="/admin/users">Sales</a>
@@ -53,6 +128,184 @@
             </table>
         </div>
 
+    </div>
+    
         <script src="/js/admin_dashboard.js"></script>
-    </body>
+
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+/*
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header, footer {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        main {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+        section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+        a {
+            text-decoration: none;
+            color: #333;
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        a:hover {
+            background-color: #ddd;
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 0.8em;
+        }
+        /*nav bar*/
+	.table_container {
+		max-height: 100px;
+		overflow-y: auto;
+		overflow-x: hidden;
+	}
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            background-color: #333;
+            overflow: hidden;
+        }
+        li {
+            float: left;
+        }
+        li #admin {
+            float: right;
+        }
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        li a:hover {
+            background-color: #111;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+	<p id="admin"></p>
+        <ul>
+	    <li><a href="/admin/dashboard">Home</a></li>
+            <li><a href="/flags/list">Flag Menu</a></li>
+            <li><a href="/admin/sales">Sales Menu</a></li>
+            <li><a href="/admin/users">Users Menu</a></li>
+
+        </ul>
+    </header>
+    <main>
+        <section id="flags">
+            <h2>Flagged Content Overview</h2>
+            <p id="flag_message">View all flagged items that require your attention.</p>
+            <a href="/flags/list">View Flags</a>
+	    <div class="table_container">
+		    <table id="flag_table">
+			<thead>
+			    <tr>
+				<th>Flag ID</th>
+				<th>Comment</th>
+				<th>Status</th>
+			    </tr>
+			</thead>
+			<tbody id="flag_list"></tbody>
+		    </table>
+	    </div>
+        </section>
+        
+        <section id="sales">
+            <h2>Sales Overview</h2>
+            <p id="sales_message">Review all sales transactions.</p>
+            <a href="/admin/sales">View Sales</a>
+	    <div class="table_container">
+		    <table id="sales_table">
+			<thead>
+			    <tr>
+				<th>Items</th>
+				<th>Status</th>
+				<th>Total Price</th>
+			    </tr>
+			</thead>
+			<tbody id="sales_list"></tbody>
+		    </table>
+	    </div>
+        </section>
+
+        <section id="users">
+            <h2>Users Overview</h2>
+            <p id="users_message">Manage all user accounts and permissions.</p>
+            <a href="/admin/users">View All Users</a>
+	    <div class="table_container">
+		    <table id="user_table">
+			<thead>
+			    <tr>
+				<th>Username</th>
+				<th>Email</th>
+				<th>Role</th>
+			    </tr>
+			</thead>
+			<tbody id="user_list"></tbody>
+		    </table>
+	    </div>
+        </section>
+    </main>
+    <br>
+    <footer>
+        © 2024 Admin Dashboard. All rights reserved.
+        <div>Contact Us: <a href="mailto:support@admin.com">support@admin.com</a></div>
+    </footer>
+
+    <script src="/js/admin_dashboard.js"></script>
+</body>
 </html>

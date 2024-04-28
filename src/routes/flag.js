@@ -4,6 +4,8 @@ require('dotenv').config({ path: path.join(__dirname, "../../../env/cred.env") }
 
 const db = require(path.join(__dirname, "../tools/db.js"));
 const account_tools = require(path.join(__dirname, "../tools/account_tools.js"));
+const { send_file, send_response, send_json_res } = require(path.join(__dirname, "../tools/file_sending.js"));
+
 
 const router = (req, res) => {
 	let { url } = req;
@@ -95,9 +97,22 @@ const router = (req, res) => {
 			res.end('Token invalid.');
 		})
 	} else {
-		//no auth token
-		res.writeHead(401, { 'Content-Type': 'text/plain' });
-		res.end('Authorization not provided.');
+		if (url == '/flags/list') {
+			let file = path.join(__dirname, "../../templates/views/flag_list.html");
+			send_file(file, 'text/html')
+			.then((data) => {
+				send_response(res, data);
+			})
+			.catch((error) => {
+				send_response(res, error);
+			})
+		} else {
+			//no auth token
+			res.writeHead(401, { 'Content-Type': 'text/plain' });
+			res.end('Authorization not provided.');
+		}
+
+		
 	}
 }
 

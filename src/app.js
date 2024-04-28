@@ -29,7 +29,7 @@ const send_file = (view_route, type) => {
             if (err) {
                 reject({
                     code: 500,
-                    content_type: text_content,
+                    content_type: type,
                     m: 'Error reading HTML file, please try again.'
                 })
             } else {
@@ -100,6 +100,7 @@ const server = http.createServer((req, res) => {
 			send_response(res, data);
 		})
 		.catch((err) => {
+			console.log(file);
 			send_response(res, err);
 		})
 	} else if (route == 'css') {
@@ -112,8 +113,9 @@ const server = http.createServer((req, res) => {
 			send_response(res, err);
 		})
 	} else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('This URL is not found.');		
+		console.log('hello!!!');
+		res.writeHead(404, { 'Content-Type': 'text/plain' });
+		res.end('This URL is not found.');		
 	} 
 })
 

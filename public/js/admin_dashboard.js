@@ -1,6 +1,6 @@
 let auth;
 
-const welcome = document.querySelector("#welcome");
+const welcome = document.querySelector("#admin");
 
 const flag_table = document.querySelector("#flag_table");
 const flag_message = document.querySelector("#flag_message");
@@ -153,7 +153,7 @@ window.onload = () => {
         .then((data) => {
             if (data.success) {
                 if (data.user.role === 0) {
-                    welcome.textContent = `Welcome, ${data.user.username}`;
+                    welcome.textContent = data.user.username;
 
                     //request for flags
                     auth_request_get(

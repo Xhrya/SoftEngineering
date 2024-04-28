@@ -2,6 +2,7 @@ const path = require('path');
 
 const db = require(path.join(__dirname, "../tools/db.js"));
 const account_tools = require(path.join(__dirname, "../tools/account_tools.js"));
+const { send_json_res } = require(path.join(__dirname, "../tools/file_sending.js"));
 
 const router = (req, res) => {
 	let auth_token = req.headers['authorization'];
@@ -22,29 +23,39 @@ const router = (req, res) => {
 								let body = JSON.parse(data);
 								let {
 									user_id, 
-									reason
 								} = body;
 								let q = `UPDATE User SET status = 'ban' WHERE user_id = ${user_id}`;
 								db.query(q, (err, results) => {
 									//handle error
 									if (err) {
-										res.writeHead(500, { 'Content-Type': 'text/plain' });
-										res.end('Server error');
+										send_json_res(res, { 
+											code: 500,
+											m: { success: false }
+										})
 									} else {
-										res.writeHead(200, { 'Content-Type': 'text/plain' });
-										res.end(JSON.stringify({ success: true }));
+										send_json_res(res, {
+											code: 200,
+											m: {
+												success: true
+											}
+										})
 									}
 								})
 							} catch(e) {
-								//error with JSON
-								res.writeHead(400, { 'Content-Type': 'text/plain' });
-								res.end('Error parsing JSON data!');
+								send_json_res(res, {
+									code: 400,
+									m: {
+										success: false
+									}
+								})
 							}
 						})
 					} else {
 						//wrong method
-						res.writeHead(405, { 'Content-Type': 'text/plain' });
-						res.end('Wrong method type');
+						send_json_res(res, {
+							code: 405,
+							m: { success: false }
+						})
 					}
 				} else {
 					res.writeHead(404, { 'Content-Type': 'text/plain' });

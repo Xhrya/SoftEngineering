@@ -363,38 +363,60 @@ const router = (req, res) => {
 								if (body.user_id && body.account_type) {
 									account_tools.generate_sales_report(body.user_id, body.account_type)
 									.then((sales_data) => {
-										res.writeHead(200, { 'Content-Type': 'text/plain' });
-										res.end(JSON.stringify(sales_data));
+										send_json_res(res, {
+											code: 200,
+											m: {
+												success: true,
+												data: sales_data
+											}
+										})
 									})
 									.catch((error) => {
-										res.writeHead(500, { 'Content-Type': 'text/plain' });
-										res.end('Server error');
+										send_json_res(res, {
+											code: 500,
+											m: {
+												success: false,
+												error
+											}
+										})
 									})
 								} else {
-									res.writeHead(400, { 'Content-Type': 'text/plain' });
-									res.end('Missing fields');
+									send_json_res(res, {
+										code: 400,
+										m: { success: false, error: 'missing fields' }
+									})
 								}
 							} catch(e) {
-								res.writeHead(400, { 'Content-Type': 'text/plain' });
-								res.end('Error parsing JSON data!');
+								send_json_res(res, {
+									code: 400,
+									m: { success: false, error: 'json parsing error' }
+								})
 							}
 						})
 					} else {
-						res.writeHead(401, { 'Content-Type': 'text/plain' });
-						res.end('Unauthorized User');
+						send_json_res(res, {
+							code: 401,
+							m: { success: false, error: 'unauthorized' }
+						})
 					}
 				})
 				.catch((error) => {
-					res.writeHead(400, { 'Content-Type': 'text/plain' });
-					res.end('Token invalid.');
+					send_json_res(res, {
+						code: 400,
+						m: { success: false, error }
+					})
 				})
 			} else {
-				res.writeHead(401, { 'Content-Type': 'text/plain' });
-				res.end('Authorization not provided');
+				send_json_res(res, {
+					code: 401,
+					m: { success: false, error: 'unauthorized' }
+				})
 			}
 		} else {
-			res.writeHead(405, { 'Content-Type': 'text/plain' });
-			res.end('Wrong method type');
+			send_json_res(res, {
+				code: 405,
+				m: { success: false }
+			})
 		}
 	} else {
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
