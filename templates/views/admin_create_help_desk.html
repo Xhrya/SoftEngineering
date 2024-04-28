@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users Dashboard</title>
+    <title>Users Dashboard, Create Help Desk</title>
     <style>
 /*
         body {
@@ -105,26 +105,14 @@
         </ul>
     </header>
     <main>
-        <section id="users">
-            <h2>Users Overview</h2>
-            <p id="users_message">Manage all user accounts and permissions.</p>
-	    <a href="/admin/create_help_desk"><button>Create New Help Desk</button></a>
-	    <div class="table_container">
-		    <table id="user_table">
-			<thead>
-			    <tr>
-				    <th>User ID</th>
-				<th>Username</th>
-				<th>Email</th>
-				<th>Role</th>
-				<th>Status</th>
-				<th></th>
-			    </tr>
-			</thead>
-			<tbody id="user_list"></tbody>
-		    </table>
+	    <div style="padding-top: 50px">
+		    <h3>Enter new Help Desk information:</h3>
+		    <input type="text" id="username">
+		    <input type="email" id="email">
+		    <input type="password" id="password">
+		    <button>Create</button>
+		    <p id="message"></p>
 	    </div>
-        </section>
     </main>
     <br>
     <footer>
@@ -132,6 +120,6 @@
         <div>Contact Us: <a href="mailto:support@admin.com">support@admin.com</a></div>
     </footer>
 
-    <script src="/js/admin_users_dashboard.js"></script>
+    <script src="/js/admin_create_help_desk.js"></script>
 </body>
 </html>

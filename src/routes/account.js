@@ -210,7 +210,7 @@ const router = (req, res) => {
 			}
 			res.end(JSON.stringify(o));
 		}
-	} else if (url == '/account/create') {
+	} else if (url == '/account/create_help_desk') {
 		//check if user is signed in first and verify admin permission
 		let auth_token = req.headers['authorization'];
 		if (auth_token) {
@@ -228,47 +228,66 @@ const router = (req, res) => {
 								let {
 									username, 
 									password,
-									email,
-									role
+									email
 								} = body;
 								//validate each entry and hash password
-								let q = `INSERT INTO User VALUES (default, '${username}', '${email}', '${password}', 'active', ${role})`; 
+								let q = `INSERT INTO User VALUES (default, '${username}', '${email}', '${password}', 'active', 1)`; 
 								db.query(q, (err, results) => {
 									//handle error
 									if (err) {
-										res.writeHead(500, { 'Content-Type': 'text/plain' })
-										res.end('Server error')
+										send_json_res(res, {
+											code: 500,
+											m: { success: false }
+										})
 									} else {
-										let obj = { success: true };
-										res.writeHead(200, { 'Content-Type': 'text/plain' });
-										res.end(JSON.stringify(obj));
+										let q = `INSERT INTO Helpdesk VALUES (default, ${results.insertId})`;
+										db.query(q, (err, results2) => {
+											if (err) {
+												send_json_res(res, {
+													code: 500,
+													m: { success: false }
+												})
+											} else {
+												send_json_res(res, { 
+													code: 200,
+													m: { success: true }
+												})
+											}
+										})
 									}
 								})
 							} catch(e) {
 								//error JSON
-								res.writeHead(400, { 'Content-Type': 'text/plain' });
-								res.end('Error parsing JSON data!');
+								send_json_res(res, {
+									code: 400,
+									m: { success: false }
+								})
 							}
 						})
 					} else {
-						//wrong method
-						res.writeHead(405, { 'Content-Type': 'text/plain' });
-						res.end('Wrong method type');
+						send_json_res(res, {
+							code: 405, 
+							m: { success: false }
+						})
 					}
 				} else {
-					//unauthorized
-					res.writeHead(401, { 'Content-Type': 'text/plain' });
-					res.end('Unauthorized User');
+					send_json_res(res, {
+						code: 401,
+						m: { success: false }
+					})
 				}
 			})
 			.catch((error) => {
-				//error with token signout user
-				res.writeHead(400, { 'Content-Type': 'text/plain' });
-				res.end('Token invalid.');
+				send_json_res(res, {
+					code: 400,
+					m: { success: false }
+				})
 			})
 		} else {
-			res.writeHead(401, { 'Content-Type': 'text/plain' });
-			res.end('Authorization not provided.');
+			send_json_res(res, {
+				code: 401,
+				m: { success: false }
+			})
 		}
 	} else if (url == '/account/view_sales') {
 		let auth_token = req.headers['authorization'];
