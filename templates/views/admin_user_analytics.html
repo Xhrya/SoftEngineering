@@ -103,6 +103,11 @@
         tr:hover {
             background-color: #ddd;
         }
+
+         canvas#bar_graph {
+            width: 100%; 
+            height: auto; /* Keep the aspect ratio */
+        }
     </style>
 </head>
 <body>
@@ -121,17 +126,37 @@
     </header>
     
     
-    <main>
-        <div id="user_details">
-            <h3>User Details</h3>    
-        </div>
+   <main>
+    
+    
+        <button onclick="toggleUserDetails()" id="toggleButton">Show User Details</button>
+        <section id="user_details" class="hidden">
+            <h3>User Details</h3>
+            <!-- <p>Password: <span id="password">****</span><button onclick="togglePasswordVisibility()">Show</button></p> -->
+        </section>
 
-        <div id="sales_report">
+                <section id="top-selling-items">
+            <h3>Top Selling Items</h3>
+            <div id="top-items-container"></div>
+        </section>
+        <section id="top-sellers">
+            <h3>Top Sellers</h3>
+            <div id="top-sellers-container"></div>
+        </section>
+        <section id="top-buyers">
+            <h3>Top Buyers</h3>
+            <div id="top-buyers-container"></div>
+        </section>
+
+
+
+        <section id="sales_report">
             <h3>Sales Report</h3>
             <canvas id="bar_graph" width="400" height="300"></canvas>
-            <p id="sales_message" style="display: none;">No sales report available.</p>
-        </div>
+            <p id="sales_message" class="hidden">No sales report available.</p>
+        </section>
     </main>
+    
     
     <footer>
         © 2024 Admin Dashboard. All rights reserved.
@@ -139,17 +164,18 @@
     </footer>
 
     <script src="/js/admin_user_analytics.js"></script>
-    <script>
-        window.addEventListener('DOMContentLoaded', function() {
-            var salesReport = document.getElementById('sales_report');
-            var barGraph = document.getElementById('bar_graph');
-            var salesMessage = document.getElementById('sales_message');
-
-            // if (!barGraph || !barGraph.getContext('2d').getImageData(0, 0, barGraph.width, barGraph.height).data.some(channel => channel !== 0)) {
-            //     salesReport.removeChild(barGraph); // Remove the empty canvas
-            //     salesMessage.style.display = 'block'; // Display the sales message
-            // }
-        });
-    </script>
+   <script>
+    function toggleUserDetails() {
+            var userDetails = document.getElementById('user_details');
+            var btn = userDetails.querySelector('button[onclick="toggleUserDetails()"]');
+            if (userDetails.classList.contains('hidden')) {
+                userDetails.classList.remove('hidden');
+                btn.textContent = 'Hide Details';
+            } else {
+                userDetails.classList.add('hidden');
+                btn.textContent = 'Show User Details';
+            }
+        }
+</script>
 </body>
 </html>

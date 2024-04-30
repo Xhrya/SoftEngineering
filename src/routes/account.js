@@ -27,7 +27,7 @@ const router = (req, res) => {
 					let q = `SELECT * FROM User WHERE username = '${username}'`;
 					db.query(q, (err, results) => {
 						//handle error
-						if (err) throw err;
+						
 						if (err) {
 							res.writeHead(500, { 'Content-Type': 'text/plain' });
 							let obj = {
