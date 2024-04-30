@@ -62,7 +62,7 @@ let conversationHistory = [
 
 const server = http.createServer(async (req, res) => {
     // Set CORS headers
-    const allowedOrigins = ['http://127.0.0.1:5500', 'http://localhost:5500']; 
+    const allowedOrigins = ['http://127.0.0.1:5500', 'http://localhost:5500', 'http://127.0.0.1:5501'];
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
@@ -107,93 +107,82 @@ const handleApiRequest = async (req, res) => {
         size += chunk.length;
         if (size > MAX_PAYLOAD_SIZE) {
             console.log('Payload too large');
-            // Terminate request if payload is too large
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: "Payload too large. Please try again." }));
             req.connection.destroy(); // Close the connection to prevent further data transmission
+            return;
         }
         body += chunk.toString();
     });
 
     req.on('error', (error) => {
-        if (error.code === 'EPIPE') {
-            console.log('Connection closed due to large payload');
-            // Respond with an error message
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: "Connection closed due to large payload" }));
-        } else {
-            console.error("Request error:", error);
-            // Handle other request errors
-            res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: "Internal server error" }));
-        }
+        console.error("Request error:", error);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: "Internal server error" }));
     });
-    
 
     req.on('end', async () => {
         try {
-            console.log('Request body received:', body);
             const parsedBody = JSON.parse(body);
+            const userMessage = parsedBody.userMessage;
+            const instanceID = parsedBody.instanceID; // Store instanceID from the request
 
-            if (size <= MAX_PAYLOAD_SIZE) {
-                const parsedBody = JSON.parse(body);
-                const userMessage = parsedBody.userMessage;
-                console.log('User message:', userMessage);
-                conversationHistory.push({ role: "user", content: userMessage });
+            console.log('Instance ID:', instanceID, '| User message:', userMessage);
+            // console.log(); 
 
-                if (isMalicious(userMessage)) {
-                    console.log('Malicious input detected');
+            if (isMalicious(userMessage)) {
+                console.log('Malicious input detected');
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: "Invalid input. Please try again" }));
+                return;
+            }
+
+            // Update the conversation history for AI processing without including instanceID
+            conversationHistory.push({ role: "user", content: userMessage });
+
+            try {
+                const completion = await openai.chat.completions.create({
+                    messages: conversationHistory,
+                    model: "gpt-3.5-turbo-0125",
+                });
+
+                const aiResponse = completion.choices[0].message.content;
+
+                console.log('AI response:', aiResponse);
+
+                if (aiResponse.length > MAX_AI_RESPONSE_LENGTH) {
+                    console.log('AI response exceeds maximum allowed length');
                     res.writeHead(400, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: "Invalid input. Please try again" }));
+                    res.end(JSON.stringify({ error: "AI response exceeds maximum allowed length" }));
                     return;
                 }
 
-                try {
-                    const completion = await openai.chat.completions.create({
-                        messages: conversationHistory,
-                        model: "gpt-3.5-turbo-0125",
-                        response_format: { type: "json_object" },
-                    });
+                // Update conversation history with AI's response
+                conversationHistory.push({ role: "assistant", content: aiResponse });
 
-                    const aiResponse = completion.choices[0].message.content;
-
-                    console.log('AI response:', aiResponse);
-
-                    // Check if AI response exceeds maximum allowed length
-                    if (aiResponse.length > MAX_AI_RESPONSE_LENGTH) { // Updated length check
-                        console.log('AI response exceeds maximum allowed length');
-                        res.writeHead(400, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: "AI response exceeds maximum allowed length" }));
-                    } else {
-                        conversationHistory.push({ role: "assistant", content: aiResponse });
-
-                        // Check if the response is still writable before sending the response
-                        if (!res.writableEnded) {
-                            res.writeHead(200, { 'Content-Type': 'application/json' });
-                            res.write(JSON.stringify({ response: aiResponse }), (error) => {
-                                if (error) {
-                                    console.error("Error writing response:", error);
-                                }
-                                res.end();
-                            });
+                // Return AI's response to the client
+                if (!res.writableEnded) {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.write(JSON.stringify({ response: aiResponse }), (error) => {
+                        if (error) {
+                            console.error("Error writing response:", error);
                         }
-                    }
-                } catch (error) {
-                    console.error("Error parsing JSON:", error);
-                    res.writeHead(400, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: "Malformed JSON data" }));
-                    return;
+                        res.end();
+                    });
                 }
+            } catch (error) {
+                console.error("Error calling OpenAI API:", error);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: "Error processing AI response" }));
             }
         } catch (error) {
-            if (error instanceof SyntaxError) {
-                console.error("Error handling request:", error);
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: "Malformed JSON data" }));
-            }
+            console.error("Error parsing JSON:", error);
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: "Malformed JSON data" }));
         }
     });
 };
+
 
 
 const PORT = 3000;
