@@ -2,6 +2,20 @@
 
 const API_URL = 'http://localhost:3000/api';
 
+const instanceID = generateInstanceId();
+
+function generateInstanceId() {
+    const now = Date.now();
+    let hash = 0, i, chr;
+    const str = `${navigator.userAgent}${Math.random()}${now}`;
+    for (i = 0; i < str.length; i++) {
+        chr   = str.charCodeAt(i);
+        hash  = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash.toString();
+}
+
 async function sendMessageToServer(userMessage) {
     try {
         const response = await fetch(API_URL, {
@@ -9,7 +23,7 @@ async function sendMessageToServer(userMessage) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ userMessage }),
+            body: JSON.stringify({ userMessage, instanceID }),
         });
 
         if (!response.ok) {
