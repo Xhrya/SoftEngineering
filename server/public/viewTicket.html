@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Ticket</title>
+<style>
+    body {
+    font-family: calibri, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url("https://media.istockphoto.com/id/1409540606/vector/vector-contact-us-pattern-contact-us-seamless-background.jpg?s=612x612&w=0&k=20&c=3djpAIuo9fE9Mr4T7bLIUpEjqU7XaZk4wWt7aMUgU1o=");
+}
+
+h1 {
+	    
+	width: 50%;
+    margin: 50px auto;
+    background-color: #f2f2f2; /* Light gray background color */
+    color: #000; /* Text color */
+    padding: 5px 10px;
+    text-align: center;
+    border: 4px solid #333; /* Dark gray border */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+}
+
+.ticket-details {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+border: 2px solid #000;
+}
+
+.ticket-info {
+    margin-bottom: 15px;
+}
+
+label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+span, p {
+    color: #333;
+}
+
+/* Optional: Add hover effect for ticket details */
+.ticket-info:hover {
+    background-color: #f9f9f9;
+}
+/* CSS for the "Back" button */
+#backButton {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 10px 20px;
+    background-color: #FFD580; /* Light orange background color */
+    color: #000; /* Black text color */
+    border: 4px solid #FFA500; /* Dark orange border */
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 9999; /* Ensure it appears above other elements */
+}
+
+/* CSS for the "Live Chat" button */
+#liveChatButton {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 20px 40px; /* Increased padding for a bigger button */
+    background-color: #ADD8E6; /* Light blue background color */
+    color: #000; /* Black text color */
+    border: 4px solid #0000A0; /* Dark blue border */
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* Additional styles for button hover effect */
+#liveChatButton:hover, #backButton:hover {
+    opacity: 0.8;
+}
+/* CSS for the "Leave Chat" button */
+/* CSS for the bottom right button */
+.bottom-right-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px 30px;
+    background-color: #ffcccc; /* Light red background color */
+    color: #000;
+    border: 4px solid #8b0000; /* Dark red border */
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Additional styles for specific buttons */
+#leaveChatButton {
+    display: none; /* Initially hidden */
+}
+
+</style>
+</head>
+<body>
+
+<h1>View Ticket</h1>
+<button id="leaveChatButton" class="bottom-right-button" style="display: none;">Leave Chat</button>
+
+
+<div class="ticket-details">
+    <div class="ticket-info">
+        <label for="ticketId">Ticket ID:</label>
+        <span id="ticketId">123456</span>
+    </div>
+    <div class="ticket-info">
+        <label for="name">Name:</label>
+        <span id="name">John Doe</span>
+    </div>
+    <div class="ticket-info">
+        <label for="category">Category:</label>
+        <span id="category">Software</span>
+    </div>
+    <div class="ticket-info">
+        <label for="subcategory">Subcategory:</label>
+        <span id="subcategory">Bug</span>
+    </div>
+    <div class="ticket-info">
+        <label for="description">Description:</label>
+        <p id="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vel eros nulla.</p>
+    </div>
+    <div class="ticket-info">
+        <label for="time">Time of Submission:</label>
+        <span id="time">2024-04-27 10:30 AM</span>
+    </div>
+</div>
+<button id="backButton">Back</button>
+
+<!-- Live Chat button at the bottom of the screen -->
+<button id="liveChatButton" class="bottom-button">Live Chat</button>
+</body>
+<script>
+        liveChatButton.textContent = 'Live Chat';
+        liveChatButton.addEventListener('click', function() {
+            const iframeContainer = document.createElement('div');
+            // Set the CSS style for the container (optional)
+            iframeContainer.style.width = '100vw';
+            iframeContainer.style.height = '100vh';
+            // Create the iframe element
+            const iframe = document.createElement('iframe');
+            // Set attributes for the iframe
+            iframe.src = 'https://livechattomer.onrender.com/'; // Replace 'https://www.example.com' with the actual URL
+            iframe.width = '100%'; // Set the width of the iframe
+            iframe.height = '100%'; // Set the height of the iframe
+            iframe.frameBorder = '0'; // Hide the iframe border
+            // Append the iframe to the container
+            iframeContainer.appendChild(iframe);
+            // Append the container to the document body or any desired container
+            document.body.appendChild(iframeContainer);
+            document.getElementById('liveChatButton').style.display = 'none';
+            const leaveChatButton = document.getElementById('leaveChatButton');
+            leaveChatButton.style.display = 'block';
+        });
+        leaveChatButton.addEventListener('click',function(){
+            const confirmation = window.confirm("Are you sure you want to leave the chat?");
+    
+                // Check if user confirms
+                if (confirmation) {
+                    // Reload or refresh the current page
+                    window.location.reload();
+                } else {
+                    // Do nothing if user cancels
+                }
+        });
+// Select the back button
+    const backButton = document.getElementById('backButton');
+
+    // Add event listener to the back button
+    backButton.addEventListener('click', function() {
+        const user_id = 'your_user_id'; // Replace with actual user_id
+            const role = 'your_role'; // Replace with actual role
+
+            // Redirect to CreateTicket.html with user_id and role as URL parameters
+        window.location.href = `frontpage.html?user_id=${user_id}&role=${role}`;
+    });
+
+</script>
+     
+</html>
