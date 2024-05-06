@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Item</title>
+</head>
+<body>
+    <h1>Welcome to the Add Item Page</h1>
+    <form action="/seller/menu_management/add_item" method="post" enctype="multipart/form-data">
+        <label for="csvFile">Upload a CSV file:</label>
+        <input type="file" id="csvFile" name="csvFile" accept=".csv">
+        <input type="submit" value="Upload">
+    </form>
+
+    <p>
+        <a href="/seller">Back to Seller</a>
+    </p>
+</body>
+</html>
