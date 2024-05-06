@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk Login</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: calibri, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url("https://media.istockphoto.com/id/1409540606/vector/vector-contact-us-pattern-contact-us-seamless-background.jpg?s=612x612&w=0&k=20&c=3djpAIuo9fE9Mr4T7bLIUpEjqU7XaZk4wWt7aMUgU1o=");
+        }
+        header {
+            background-image: linear-gradient(to right, #ff8c00, #ff4500);
+            color: #fff; /* White text color */
+            padding: 5px 5px; /* Padding of 5px on all sides */
+            text-align: center; /* Center-align text */
+            font-size: 20px; /* Font size of 20px */
+            margin: 10px; /* Add margin to create space around the header */
+            border-radius: 10px; /* Round the edges */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add shadow */
+        }
+    
+
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+
+        /* Add styles for text labels */
+        label {
+            display: inline-block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+
+        /* Add background color and border to text labels */
+        label.option-label {
+            background-image: white; /* Dark orange background color */
+            color: black; /* White text color */
+            padding: 5px 10px; /* Adjust padding as needed */
+            border-radius: 5px; /* Add border radius */
+            border: 1px solid #FFA500; /* Add border */
+            margin-right: 10px; /* Add margin to separate labels */
+            font-weight: bold; /* Make text bold */
+        }
+
+
+        section {
+            padding: 20px;
+            border: 10px solid transparent;
+            background-color: transparent;
+        }
+
+
+        .box {
+            background-color: rgb(238, 238, 238);
+            border: 1px solid #000;
+            border-radius: 5px;
+            padding: 20px; /* Increased padding */
+            margin-bottom: 30px;
+            display: flex; /* Use flexbox to align items horizontally */
+            align-items: center; /* Center items vertically */
+            justify-content: center; /* Center content horizontally */
+            flex-direction: column; /* Align items vertically */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add shadow */
+        }
+
+        .box label {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .box input[type="text"],
+        .box input[type="password"] {
+            width: 100%;
+            padding: 10px; /* Increased padding */
+            font-size: 16px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .box button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-image: linear-gradient(to right, #ffb347, #ff7f00); /* Lighter orange gradient */
+            color: #000000; /* Black text color */
+            border: 3px dashed #000; /* Dark orange border */
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+
+        footer {
+           background-color: #ff8c00;
+            color: #000;
+            padding: 10px 20px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+            width: 100%;
+            font-weight: bold;
+        }
+        
+        .ticket-buttons {
+            height: 200px;
+            width: 200px;
+            padding: 10px 10px;
+            margin: 5px;
+            color: rgb(83, 81, 81);
+            background-color:  #ffffff;
+            border-radius: 15px;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Helpdesk Login</h1>
+</header>
+
+
+
+<section>
+    <div class="box">
+        <form id="loginForm"> <!-- Added id to the form for event listener -->
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username"><br><br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password"><br><br>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</section>
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    // Get form data
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    // Validate username and password
+    if (!username.trim() || !password.trim()) {
+        alert('Please fill in both username and password.');
+        return;
+    }
+
+    // Create an object to hold login data
+    const loginData = {
+        username: username,
+        password: password
+    };
+
+    // Make AJAX request
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/account/login', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                // Handle successful login response
+                const token = xhr.responseText;
+                console.log('Login successful');
+                
+// Redirect to the /helpdesk/employee page with token as a query parameter
+window.location.href = '/helpdesk/employee?token=' + token;
+            } else {
+                // Handle login error
+                console.error('Login failed');
+            }
+        }
+    };
+
+    // Send JSON data
+    xhr.send(JSON.stringify(loginData));
+});
+</script>
+<footer>
+    &copy; 2024 Helpdesk Inc.
+</footer>
+
+</body>
+</html>

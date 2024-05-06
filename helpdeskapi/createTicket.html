@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Ticket</title>
+    <style>
+
+.container {
+            width: 50%; /* Adjust the width as needed */
+            margin: 50px auto; /* Center the container vertically and horizontally */
+            background-color: rgba(255, 255, 255);
+            padding: 0px; /* Reduced padding */
+            border-radius: 5px; /* Rounded corners */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* Drop shadow */
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 40px;
+            margin-bottom: 5px;
+            padding-top: 0px; /* Add some padding to the top for space */
+        }       
+         body {
+    font-family: calibri, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url("https://media.istockphoto.com/id/1409540606/vector/vector-contact-us-pattern-contact-us-seamless-background.jpg?s=612x612&w=0&k=20&c=3djpAIuo9fE9Mr4T7bLIUpEjqU7XaZk4wWt7aMUgU1o=");
+}
+
+h1 {
+    header {
+        background-color: #000000; /* Black background color */
+        color: #fff; /* White text color */
+        padding: 5px 5px; /* Padding of 5px on all sides */
+        text-align: center; /* Center-align text */
+        font-size: 20px; /* Font size of 20px */
+        margin: 10px; /* Add margin to create space around the header */
+    }    
+}
+h3 {
+    header {
+        background-color: #000000; /* Black background color */
+        color: #fff; /* White text color */
+        padding: 5px 5px; /* Padding of 5px on all sides */
+        text-align: center; /* Center-align text */
+        font-size: 20px; /* Font size of 20px */
+        margin: 10px; /* Add margin to create space around the header */
+    }    
+}
+form {
+    width: 50%;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+div {
+    margin-bottom: 15px;
+}
+
+label {
+    font-weight: bold;
+}
+
+select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #d21404;
+    color: white;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #d21404;
+}
+
+.success-box{
+    width: 100%;
+    height: 100%;
+}
+@media screen and (max-width: 768px) {
+    form {
+        width: 80%;
+    }
+}
+#subcategory,
+#description,
+#ticketId,
+#orderId,
+#email {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+}
+</style>
+</head>
+<body>
+    
+ <div class="container">
+        <h1>Create Ticket</h1>
+    </div>
+
+<form id="ticketForm" action="#" method="post">
+    <script>
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const user_id = urlParams.get('user_id');
+        const role = urlParams.get('role');
+    </script>
+    <div>
+        <label for="category">Category:</label>
+        <select id="category" name="category">
+            <option value="Sign Up">Sign Up</option>
+            <option value="Log in">Log in</option>
+            <option value="Order">Order</option>
+            <option value="Refund">Refund</option>
+            <option value="Ticket">Ticket</option>
+            <!-- Add more options as needed -->
+        </select>
+    </div>
+
+    <div>
+        <label for="subcategory">Subcategory:</label>
+        <select id="subcategory" name="subcategory">
+            <!-- Subcategory options will be dynamically populated based on the selected category -->
+        </select>
+    </div>
+
+    <div>
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" rows="4" cols="50"></textarea>
+    </div>
+
+    <div id="ticketIdField" style="display: none;">
+        <label for="ticketId">Ticket ID:</label><br>
+        <input type="text" id="ticketId" name="ticketId">
+    </div>
+    <div id="orderIdField" style="display: none;">
+        <label for="orderId">Order ID:</label><br>
+        <input type="text" id="orderId" name="orderId">
+    </div>
+    <div id="emailField" style="display: none;">
+        <label for="email">Email:</label><br>
+        <input type="text" id="email" name="email">
+    </div>
+    <button type="button" onclick="sendInfoTOCreate()">Submit</button> <!-- Changed type to "button" -->
+</form>
+
+
+<script>
+    if(user_id === null){
+        document.getElementById('emailField').style.display = 'block';
+    }else{
+        document.getElementById('emailField').style.display = 'none';
+    }
+    // Define subcategories for each category
+    const subcategories = {
+        "Sign Up": ['How to sign up as User', 'How to sign up as Restaurant'],
+        "Log in": ['Forgot Password', 'Forgot Username', 'Unable to log in','Account Deactivation','Account Hacked','Account Suspended','Account Locked','Account Banned'],
+        "Order": ['Order Not received', 'Missing item', 'Wrong Item', 'Order Cancellation', 'Order Modification', 'Order Tracking', 'Order Delayed', 'Order Payment Issue'],
+        "Refund": ['How to receive a refund', 'Refund not received', 'Refund Payment Issue', 'Refund Processing Time', 'Refund Policy', 'Refund Request', 'Refund Status','Refund Dispute'],
+        "Ticket": ['Ticket Status', 'Ticket still unresolved', 'Ticket response time'],
+        // Add more subcategories as needed
+    };
+
+    // Categories that require a ticket ID
+    const categoriesWithTicketID = ['Ticket'];
+    const categoriesWithOrderID = ['Order','Refund'];
+
+    // Function to update subcategory dropdown based on selected category
+    function updateSubcategories() {
+        const category = document.getElementById('category').value;
+        const subcategoryDropdown = document.getElementById('subcategory');
+        subcategoryDropdown.innerHTML = ''; // Clear previous options
+
+        subcategories[category].forEach(subcategory => {
+            const option = document.createElement('option');
+            option.text = subcategory;
+            option.value = subcategory;
+            subcategoryDropdown.add(option);
+        });
+
+        // Check if the selected category requires a ticket ID
+        if (categoriesWithTicketID.includes(category)) {
+            document.getElementById('ticketIdField').style.display = 'block';
+            document.getElementById('orderIdField').style.display = 'none';
+        } else if(categoriesWithOrderID.includes(category)){
+            document.getElementById('orderIdField').style.display = 'block';
+            document.getElementById('ticketIdField').style.display = 'none';
+        }else{
+            document.getElementById('orderIdField').style.display = 'none';
+            document.getElementById('ticketIdField').style.display = 'none';
+        }
+    }
+
+    // Update subcategory dropdown when category selection changes
+    document.getElementById('category').addEventListener('change', updateSubcategories);
+
+    // Initially populate subcategory dropdown based on the default category
+    updateSubcategories();
+
+    function sendInfoTOCreate() {
+        const subcategory = document.getElementById('subcategory').value;
+        const description = document.getElementById('description').value;
+        const category = document.getElementById('category').value;
+        const ticketId = document.getElementById('ticketId').value;
+        const orderId = document.getElementById('orderId').value;
+        const email = document.getElementById('email').value;
+
+        
+
+        if (!description || (!email && document.getElementById('emailField').style.display === 'block')) {
+        alert('Please fill out all required fields.');
+        return; 
+    }
+        
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://localhost:3000/ticket/create', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+
+        let data = {
+            user_id:user_id,
+			role:role,
+            email: email,
+			ticket_category: category,
+            ticket_Subcategory: subcategory,
+			description: description,
+            Order_id: orderId,
+			TicketProblem_id: ticketId, 
+          };
+
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                data = xhr.responseText;
+                clearPageAndDisplaySuccess(data);
+            } else {
+                console.error('Error creating ticket:', xhr.responseText);
+            }
+        };
+        xhr.send(JSON.stringify(data));
+        
+    }
+    function clearPageAndDisplaySuccess(ticketData) {
+    const responseData = JSON.parse(ticketData);
+
+    const ticketId = responseData.ticket_id;
+
+    const subcategory = document.getElementById('subcategory').value;
+    const description = document.getElementById('description').value;
+    const category = document.getElementById('category').value;
+
+    document.body.innerHTML = '';
+    document.body.style.backgroundImage = 'none';
+    const ticketInfo = document.createElement('div');
+    ticketInfo.style.width = "auto"; // Set width
+    ticketInfo.style.height = "auto"; // Set height
+    ticketInfo.style.backgroundColor = "lightblue"; // Set background color
+    ticketInfo.style.border = "1px solid black"; // Set border
+    ticketInfo.setAttribute('class','success-box');        
+    const successMessage = document.createElement('h2');
+    successMessage.textContent = 'Successful Ticket Submission';
+    ticketInfo.appendChild(successMessage);
+
+    const categoryInfo = document.createElement('p');
+    categoryInfo.innerHTML = `<strong>Category:</strong> ${category}`;
+    ticketInfo.appendChild(categoryInfo);
+
+    const subcategoryInfo = document.createElement('p');
+    subcategoryInfo.innerHTML = `<strong>Subcategory:</strong> ${subcategory}`;
+    ticketInfo.appendChild(subcategoryInfo);
+
+    const descriptionInfo = document.createElement('p');
+    descriptionInfo.innerHTML = `<strong>Description:</strong> ${description}`;
+    ticketInfo.appendChild(descriptionInfo);
+
+    const responseText = document.createElement('p');
+    responseText.innerHTML = `<strong>Ticket ID:</strong> ${ticketId}`;
+    ticketInfo.appendChild(responseText);
+
+    document.body.appendChild(ticketInfo);
+
+    const viewTicketsButton = document.createElement('button');
+    viewTicketsButton.textContent = 'Back to Home';
+    viewTicketsButton.addEventListener('click', function() {
+        history.back();
+    });
+    document.body.appendChild(viewTicketsButton);
+    const viewThisTicketButton = document.createElement('button');
+    viewThisTicketButton.textContent = 'View This Ticket';
+    viewThisTicketButton.addEventListener('click', function() {
+        window.location.href = `http://localhost:3000/ticket/${ticketId}`;
+    });
+    document.body.appendChild(viewThisTicketButton);
+}
+
+</script>
+
+</body>
+</html>

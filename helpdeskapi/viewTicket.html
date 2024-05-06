@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Ticket</title>
+<style>
+    body {
+    font-family: calibri, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url("https://media.istockphoto.com/id/1409540606/vector/vector-contact-us-pattern-contact-us-seamless-background.jpg?s=612x612&w=0&k=20&c=3djpAIuo9fE9Mr4T7bLIUpEjqU7XaZk4wWt7aMUgU1o=");
+}
+
+h1 {
+	    
+	width: 50%;
+    margin: 50px auto;
+    background-color: #f2f2f2; /* Light gray background color */
+    color: #000; /* Text color */
+    padding: 5px 10px;
+    text-align: center;
+    border: 4px solid #333; /* Dark gray border */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+}
+
+.ticket-details {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+border: 2px solid #000;
+}
+
+.ticket-info {
+    margin-bottom: 15px;
+}
+
+label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+span, p {
+    color: #333;
+}
+
+/* Optional: Add hover effect for ticket details */
+.ticket-info:hover {
+    background-color: #f9f9f9;
+}
+/* CSS for the "Back" button */
+#backButton {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 10px 20px;
+    background-color: #FFD580; /* Light orange background color */
+    color: #000; /* Black text color */
+    border: 4px solid #FFA500; /* Dark orange border */
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 9999; /* Ensure it appears above other elements */
+}
+
+/* CSS for the "Live Chat" button */
+#liveChatButton {
+    position:absolute;
+    left:80%;
+    
+    padding: 15px 30px; /* Increased padding for a bigger button */
+    background-color: #ADD8E6; /* Light blue background color */
+    color: #000; /* Black text color */
+    border: 4px solid #0000A0; /* Dark blue border */
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* Additional styles for button hover effect */
+#liveChatButton:hover, #backButton:hover {
+    opacity: 0.8;
+}
+
+/* CSS for the "Leave Chat" button */
+/* CSS for the bottom right button */
+.bottom-right-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px 30px;
+    background-color: #ffcccc; /* Light red background color */
+    color: #000;
+    border: 4px solid #8b0000; /* Dark red border */
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Additional styles for specific buttons */
+#leaveChatButton {
+    display: none; /* Initially hidden */
+}
+.helpdesk-dropdown {
+    padding: 15px 30px; /* Increased padding for a bigger dropdown */
+    background-color: #ADD8E6; /* Light blue background color */
+    color: #000; /* Black text color */
+    border: 4px solid #0000A0; /* Dark blue border */
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.helpdesk-buttons {
+    align-items: center;
+    margin-left: 20px;
+    padding: 15px 30px; /* Increased padding for a bigger button */
+    background-color: #ADD8E6; /* Light blue background color */
+    color: #000; /* Black text color */
+    border: 4px solid #0000A0; /* Dark blue border */
+    border-radius: 10px;
+    cursor: pointer;
+}
+.response-textbox {
+    width: 100%; /* Set the width to 100% */
+    padding: 10px; /* Set padding for the textbox */
+    resize: vertical; /* Allow vertical resizing */
+    margin-bottom: 10px; /* Add margin below the textbox */
+}
+
+#textBox {
+    height:100px;
+    width: 400px; /* Set the width of the textbox */
+    padding: 10px; /* Add some padding */
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 5px; /* Add border radius for rounded corners */
+    font-size: 16px; /* Increase font size */
+    margin-bottom: 10px; /* Add some bottom margin */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  }
+  .respond-buttons {
+    text-align: center;
+  }
+  .helpdesk-buttons:hover, #backButton:hover {
+    opacity: 0.8;
+}
+</style>
+</head>
+<body>
+
+<h1>View Ticket</h1>
+<button id="leaveChatButton" class="bottom-right-button" style="display: none;">Leave Chat</button>
+
+
+<div class="ticket-details">
+    <div class="ticket-info">
+        <label for="ticketId">Ticket ID:</label>
+        <span id="ticketId"></span>
+    </div>
+    <div class="ticket-info">
+        <label for="name">Name:</label>
+        <span id="name"></span>
+    </div>
+    <div class="ticket-info">
+        <label for="category">Category:</label>
+        <span id="category"></span>
+    </div>
+    <div class="ticket-info">
+        <label for="subcategory">Subcategory:</label>
+        <span id="subcategory"></span>
+    </div>
+    <div class="ticket-info">
+        <label for="description">Description:</label>
+        <p id="description"></p>
+    </div>
+    <div class="ticket-info">
+        <label for="time">Time of Submission:</label>
+        <span id="time"></span>
+    </div>
+    <div class="ticket-info">
+        <label for="status">STATUS:</label>
+        <span id="status"></span>
+    </div>
+    <div class="ticket-info" id="response" style="display: none;">
+        <label for="ticket_response">Response:</label>
+        <span id="ticket_response"></span>
+    </div>
+    <div class="ticket-info" id="ticket_flag" style="display: none;">
+        <label for="Flag_status">Flag Status:</label>
+        <span id="Flag_status"></span>
+    </div>
+    <div class="ticket-info" id="ticket_Problem" style="display: none;">
+        <label for="TicketProblem_id">Problem Ticket:</label>
+        <span id="TicketProblem_id"></span>
+    </div>
+    <div class="ticket-info" id="ticket_order" style="display: none;">
+        <label for="orderId">Order ID:</label>
+        <span id="orderId"></span>
+    </div>
+    <div id = "helpdesk-buttons" style="display: none; align-items: center; justify-content: space-between; margin-top: 20px;">
+        <!-- Dropdown -->
+        <select id="action-dropdown" class="helpdesk-dropdown">
+            <option value="Unresolved">Unresolved</option>
+            <option value="Resolved">Resolved</option>
+          
+        </select>
+        <!-- Buttons -->
+        <button id="button1" class="helpdesk-buttons">Update Status</button>
+        <button id="button2" class="helpdesk-buttons">Flag</button>
+        
+
+    </div>
+</div>
+<button id="backButton">Back</button>
+<button id="liveChatButton" class="bottom-button">Live Chat</button>
+<!-- Live Chat button at the bottom of the screen -->
+<form id="myForm" class="respond-buttons" style="display:none">
+    <textarea  type="text" rows="4"id="textBox" placeholder="Respond Here"></textarea>
+    <br>
+    <button class= "helpdesk-buttons" id="sendButton">Respond</button>
+    <button class= "helpdesk-buttons" id="clearButton">Clear</button>
+  </form>
+
+</body>
+<script>
+const jsonDataElement = document.getElementById('jsonData');
+const jsonData = JSON.parse(jsonDataElement.textContent);
+
+if(jsonData.role == 1){
+    document.getElementById('helpdesk-buttons').style.display = 'block';
+    document.getElementById('myForm').style.display = 'block';
+}
+
+// Function to handle undefined and null values
+function handleNullUndefined(value) {
+    if(value === "undefined" || value === null){
+        value = "N/A";
+    }
+    return value;
+}
+
+// Populate HTML elements with ticket details
+document.getElementById('ticketId').textContent = jsonData.Ticket[0].Ticket_id;
+document.getElementById('name').textContent = handleNullUndefined(jsonData.Ticket[0].User_id);
+document.getElementById('category').textContent = jsonData.Ticket[0].Ticket_Category;
+document.getElementById('subcategory').textContent = jsonData.Ticket[0].Ticket_SubCategory;
+document.getElementById('description').textContent = jsonData.Ticket[0].Description;
+document.getElementById('time').textContent = jsonData.Ticket[0].Time;
+document.getElementById('status').textContent = jsonData.Ticket[0].STATUS; //  make this element
+
+if(jsonData.Ticket[0].Order_id !== ""){
+document.getElementById('orderId').textContent = jsonData.Ticket[0].Order_id;
+document.getElementById('ticket_order').style.display = 'block';
+}
+if(jsonData.Ticket[0].TicketProblem_id !==""){
+document.getElementById('TicketProblem_id').textContent = jsonData.Ticket[0].TicketProblem_id;
+document.getElementById('ticket_Problem').style.display = 'block';
+}
+if(jsonData.Ticket[0].Response !== null){
+    document.getElementById('ticket_response').textContent = jsonData.Ticket[0].Response;
+    document.getElementById('response').style.display = 'block';
+}
+if(jsonData.Ticket[0].Flag_status !==null){
+    document.getElementById('Flag_status').textContent = 'Flagged';
+    document.getElementById('ticket_flag').style.display = 'block';
+    document.getElementById('button2').style.backgroundColor = '#ffcccc';
+    document.getElementById('button2').style.border = '4px solid #8b0000';
+    document.getElementById('button2').disabled = true;
+}
+  
+        liveChatButton.textContent = 'Live Chat';
+        liveChatButton.addEventListener('click', function() {
+            const iframeContainer = document.createElement('div');
+            // Set the CSS style for the container (optional)
+            iframeContainer.style.width = '90%'; // Set width
+    iframeContainer.style.maxWidth = '80%'; // Set maximum width
+    iframeContainer.style.margin = '0 auto'; // Center horizontally
+    iframeContainer.style.border = '2px solid black'; // Add border
+
+    // Create the iframe element
+    const iframe = document.createElement('iframe');
+    // Set attributes for the iframe
+    iframe.src = 'https://livechattomer.onrender.com/'; // Replace 'https://www.example.com' with the actual URL
+    iframe.width = '100%'; // Set the width of the iframe
+    iframe.height = '400px'; // Set the height of the iframe
+    iframe.frameBorder = '0'; // Hide the iframe border
+            // Append the iframe to the container
+            iframeContainer.appendChild(iframe);
+            // Append the container to the document body or any desired container
+            document.body.appendChild(iframeContainer);
+            document.getElementById('liveChatButton').style.display = 'none';
+            const leaveChatButton = document.getElementById('leaveChatButton');
+            leaveChatButton.style.backgroundPosition = ''
+            leaveChatButton.style.display = 'block';
+        });
+        leaveChatButton.addEventListener('click',function(){
+            const confirmation = window.confirm("Are you sure you want to leave the chat?");
+    
+                // Check if user confirms
+                if (confirmation) {
+                    // Reload or refresh the current page
+                    window.location.reload();
+                } else {
+                    // Do nothing if user cancels
+                }
+        });
+// Select the back button
+const updateStatusButton = document.getElementById('button1');
+    updateStatusButton.addEventListener('click',function(){
+        updatedStatus = document.getElementById('action-dropdown').value;
+        const xhr = new XMLHttpRequest();
+        xhr.open('PATCH', 'http://localhost:3000/ticket/' + jsonData.Ticket[0].Ticket_id + '/update', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+
+        let data = {
+            STATUS : updatedStatus,
+          };
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                data = xhr.responseText;
+                location.reload();
+            } else {
+                console.error('Error creating ticket:', xhr.responseText);
+            }
+        };
+        xhr.send(JSON.stringify(data));
+        
+
+    })
+    const flagButton = document.getElementById('button2');
+    flagButton.addEventListener('click',function(){
+        const confirmation = window.confirm("Are you sure you want to flag this ticket?");
+        if(confirmation){
+        flagValue = document.getElementById('button1').value;
+        const xhr = new XMLHttpRequest();
+        xhr.open('PATCH', 'http://localhost:3000/ticket/' + jsonData.Ticket[0].Ticket_id + '/update', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        
+        let data = {
+			flag:true
+          };
+
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                data = xhr.responseText;
+                location.reload();
+            } else {
+                console.error('Error creating ticket:', xhr.responseText);
+            }
+        };
+        xhr.send(JSON.stringify(data));
+    }
+    
+    })
+
+    const backButton = document.getElementById('backButton');
+
+    // Add event listener to the back button
+    backButton.addEventListener('click', function() {
+        window.close();
+    });
+    document.getElementById("sendButton").addEventListener("click", function() {
+    var textBoxValue = document.getElementById("textBox").value;
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('PATCH', 'http://localhost:3000/ticket/' + jsonData.Ticket[0].Ticket_id + '/update', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+
+        let data = {
+            Response : textBoxValue,
+          };
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                data = xhr.responseText;
+                location.reload();
+            } else {
+                console.error('Error creating ticket:', xhr.responseText);
+            }
+        };
+        xhr.send(JSON.stringify(data));
+        
+  });
+
+  document.getElementById("clearButton").addEventListener("click", function() {
+    document.getElementById("textBox").value = '';
+  });
+  document.getElementById("button3").addEventListener("click", function() {
+    if(document.getElementById('myForm').style.display == 'none'){
+        document.getElementById('myForm').style.display = 'block';
+    }
+  });
+</script>
+     
+</html>

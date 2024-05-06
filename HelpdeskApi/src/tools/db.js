@@ -2,52 +2,39 @@ const path = require('path');
 const sqlite3 = require('sqlite3');
 
 const db = new sqlite3.Database(path.join(__dirname, "./munchmate.db"));
-// const query = "SELECT name FROM sqlite_master WHERE type='table';";
+//  const dropQuery = `DROP TABLE IF EXISTS Ticket;`;
 
-
-// db.all(query, (err, tables) => {
-//     if (err) {
-//         console.error('Error getting table names:', err.message);
-//         return;
-//     }
-    
-//     // Loop through each table and drop it
-//     tables.forEach(table => {
-//         const dropQuery = `DROP TABLE ${table.name};`;
-//         db.run(dropQuery, (dropErr) => {
-//             if (dropErr) {
-//                 console.error(`Error dropping table ${table.name}:`, dropErr.message);
-//             } else {
-//                 console.log(`Table ${table.name} dropped successfully.`);
-//             }
-//         });
-//     });
-// });
+// 		db.run(dropQuery, (err) => {
+// 			if (err) {
+// 			console.error('Error dropping table Ticket:', err.message);
+// 			} else {
+// 			console.log('Table Ticket dropped successfully.');
+// 		}
+// 	}); 
 db.serialize(() => {
 	let qs = [
 	`
 	CREATE TABLE IF NOT EXISTS User (
-	    user_id INTEGER PRIMARY KEY,
+	    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
 	    username VARCHAR(50) NOT NULL,
-		name VARCHAR(50) NOT NULL,
 	    email VARCHAR(50) NOT NULL,
-	    password VARCHAR(255),
+	    password VARCHAR(255) NOT NULL,
 	    status VARCHAR(50) NOT NULL,
 	    role INT NOT NULL,
 	    CONSTRAINT unique_username UNIQUE (username),
 	    CONSTRAINT unique_email UNIQUE (email)
-	);
+	);  
 	`,
 	`	
 	CREATE TABLE IF NOT EXISTS Admin (
-	    admin_id INTEGER PRIMARY KEY,
+	    admin_id INT AUTO_INCREMENT PRIMARY KEY,
 	    user_id INT,
 	    FOREIGN KEY (user_id) REFERENCES User(user_id)
 	);
 	`,
 	`
 	CREATE TABLE IF NOT EXISTS Seller (
-	    seller_id INTEGER PRIMARY KEY,
+	    seller_id INT AUTO_INCREMENT PRIMARY KEY,
 	    user_id INT,
 	    name VARCHAR(50) NOT NULL,
 	    description VARCHAR(50),
@@ -57,25 +44,25 @@ db.serialize(() => {
 	    city VARCHAR(255),
 	    zip_code VARCHAR(50),
 	    FOREIGN KEY (user_id) REFERENCES User(user_id)
-	);
+	)
 	`,
 	`
 	CREATE TABLE IF NOT EXISTS Helpdesk (
-	    helpdesk_id INTEGER PRIMARY KEY,
+	    helpdesk_id INT AUTO_INCREMENT PRIMARY KEY,
 	    user_id INT,
 	    FOREIGN KEY (user_id) REFERENCES User(user_id)
-	);
+	)
 	`,
 	`
 	CREATE TABLE IF NOT EXISTS Patron (
-	    patron_id INTEGER PRIMARY KEY,
+	    patron_id INT AUTO_INCREMENT PRIMARY KEY,
 	    user_id INT,
 	    FOREIGN KEY (user_id) REFERENCES User(user_id)
-	);
+	)
 	`,
 	`
 	CREATE TABLE IF NOT EXISTS Flag (
-	    flag_id INTEGER PRIMARY KEY,
+	    flag_id INT AUTO_INCREMENT PRIMARY KEY,
 	    comment TEXT,
 	    user_id INT,
 	    status VARCHAR(50),
@@ -85,26 +72,25 @@ db.serialize(() => {
 	`,
 	`
 	CREATE TABLE IF NOT EXISTS Ticket (
-	    ticket_id INTEGER PRIMARY KEY,
-	    user_id INT,
-	    role INT,
-	    ticket_category VARCHAR(50),
-	    time DATETIME DEFAULT CURRENT_TIMESTAMP,
-	    status VARCHAR(10),
-	    description TEXT,
-	    FOREIGN KEY (user_id) REFERENCES User(user_id)
-	)
-	`,
-	`
-	CREATE TABLE IF NOT EXISTS Questions (
-	    question_id INTEGER PRIMARY KEY,
-	    question VARCHAR(50),
-	    answer TEXT
+	    Ticket_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	    User_id INT,
+	    Role INT,
+		Email Varchar(50),
+	    Ticket_Category VARCHAR(50),
+		Ticket_SubCategory VARCHAR(50),
+		Order_id INT,
+		TicketProblem_id INT,
+		Response TEXT,
+		Time DATETIME DEFAULT CURRENT_TIMESTAMP,
+	    STATUS VARCHAR(10),
+	    Flag_status BOOLEAN,
+	    Description TEXT,
+	    FOREIGN KEY (User_id) REFERENCES User(user_id)
 	)
 	`,
 	`
 	CREATE TABLE IF NOT EXISTS Orders (
-	    order_id INTEGER PRIMARY KEY,
+	    order_id INT AUTO_INCREMENT PRIMARY KEY,
 	    customer INT,
 	    seller INT,
 	    items TEXT,
@@ -116,11 +102,18 @@ db.serialize(() => {
 	`,
 	`
 	CREATE TABLE IF NOT EXISTS Payment (
-	    payment_id INTEGER PRIMARY KEY,
+	    payment_id INT AUTO_INCREMENT PRIMARY KEY,
 	    seller_account VARCHAR(255),
 	    patron_account VARCHAR(255),
 	    FOREIGN KEY (seller_account) REFERENCES Seller(seller_id),
 	    FOREIGN KEY (patron_account) REFERENCES Patron(patron_id)
+	)
+	`,
+	`
+	CREATE TABLE IF NOT EXISTS Questions (
+	    question_id INTEGER PRIMARY KEY,
+	    question VARCHAR(50),
+	    answer TEXT
 	)
 	`,
 	`
@@ -131,16 +124,44 @@ db.serialize(() => {
 	    description VARCHAR(50),
 	    price FLOAT,
 	    available BOOLEAN,
+		tagArray VARCHAR(255),
 	    FOREIGN KEY (seller_id) REFERENCES Seller(seller_id)
 	);
+	`,
 	`
+	CREATE TABLE IF NOT EXISTS Tags (
+        tagID INT PRIMARY KEY,
+        name VARCHAR(255) unique not null
+    );
+	`,
+	`CREATE TABLE IF NOT EXISTS EntityTags (
+        entityID INTEGER NOT NULL,
+        entityType TEXT NOT NULL,
+        tagID INTEGER NOT NULL,
+        FOREIGN KEY (tagID) REFERENCES Tags(tagID),
+        PRIMARY KEY (entityID, entityType, tagID),
+        CHECK (entityType IN ('Seller', 'MenuItem'))
+    );
+    `,
+	`
+	CREATE TABLE IF NOT EXISTS ShoppingCart (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id INT,
+        menu_item_id VARCHAR(50),
+	    name VARCHAR(50),
+	    price FLOAT, 
+        quantity INT
+    )
+	`,
+	// `INSERT INTO User (username, email, password, status, role) VALUES ('admin1', 'admin1@gmail.com', 'admin1', 'active', 0);
+	// `
 	];
 	for (let i = 0; i < qs.length; i++) {
 		db.run(qs[i], (err) => {
 			if (err) {
 				console.log('Error', err)
 			} else {
-				console.log('Table created!');
+				//console.log('Table created!');
 
 			}
 		})

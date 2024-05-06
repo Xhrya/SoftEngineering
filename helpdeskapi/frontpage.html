@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk Interface</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: calibri, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url("https://media.istockphoto.com/id/1409540606/vector/vector-contact-us-pattern-contact-us-seamless-background.jpg?s=612x612&w=0&k=20&c=3djpAIuo9fE9Mr4T7bLIUpEjqU7XaZk4wWt7aMUgU1o=");
+        }
+        header {
+            background-image: linear-gradient(to right, #ff8c00, #ff4500);
+    color: #fff; /* White text color */
+    padding: 5px 5px; /* Padding of 5px on all sides */
+    text-align: center; /* Center-align text */
+    font-size: 20px; /* Font size of 20px */
+    margin: 10px; /* Add margin to create space around the header */
+    border-radius: 10px; /* Round the edges */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add shadow */
+        }
+
+
+        nav {
+            background-color: #ffffff; /* White background color */
+         border: 2px solid #000000; /* Black border */
+            border-radius: 10px; /* Rounded edges */
+         padding: 10px; /* Adjusted padding */
+         text-align: center;
+    margin: 10px; /* Adjusted margin */
+        }
+
+      
+        button[name="create-ticket-button"] {
+           padding: 10px 20px;
+    
+    background-image: linear-gradient(to right, #ffb347, #ff7f00); /* Lighter orange gradient */
+    color: #000000; /* Black text color */
+    border: 3px #000; /* Dark orange border */
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+        }
+        button[name="questions-button"] {
+           padding: 10px 20px;
+    background-image: linear-gradient(to right, #ffb347, #ff7f00); /* Lighter orange gradient */
+    color: #000000; /* Black text color */
+    border: 3px #000; /* Dark orange border */
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+        }
+        button[name="apply-filters-button"] {
+           padding: 10px 10px;
+    background-image: linear-gradient(to right, #ffb347, #ff7f00); /* Lighter orange gradient */
+    color: #000000; /* Black text color */
+    border: 1px solid #000; /* Dark orange border */
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 10px;
+font-weight: bold;
+        }
+
+
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+
+        /* Add styles for text labels */
+        label {
+            display: inline-block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+
+        /* Add background color and border to text labels */
+        label.option-label {
+            background-image: white; /* Dark orange background color */
+    color: black; /* White text color */
+    padding: 5px 10px; /* Adjust padding as needed */
+    border-radius: 5px; /* Add border radius */
+    border: 1px solid #FFA500; /* Add border */
+    margin-right: 10px; /* Add margin to separate labels */
+    font-weight: bold; /* Make text bold */
+        }
+
+
+        section {
+padding: 20px;
+            border: 10px solid transparent;
+            background-color: transparent;
+        }
+
+
+        .box {
+            background-image: linear-gradient(to right, #ffd699, #ffb366);
+            border: 1px solid #000;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin-bottom: 30px;
+            display: flex; /* Use flexbox to align items horizontally */
+            align-items: center; /* Center items vertically */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add shadow */
+        }
+
+
+        footer {
+           background-color: #ff8c00;
+            color: #000;
+            padding: 10px 20px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+            width: 100%;
+            font-weight: bold;
+        }
+        
+        .ticket-buttons{
+            height:200px;
+            width:200px;
+            padding: 10px 10px;
+            margin: 5px;
+            color: rgb(83, 81, 81);
+            background-color:  #ffffff;
+            border-radius: 15px;
+        }
+
+    </style>
+</head>
+
+
+<body>
+    <header>
+        <h1>Welcome to the Helpdesk Interface</h1>
+    </header>
+    <nav>
+        <button type="button" name="create-ticket-button" id="create-ticket-button">
+            CREATE A TICKET
+        </button>
+        
+        <button type="button" name="questions-button" id="questions-button" style="display:none">
+            QUESTIONS
+        </button>
+        <p>
+            <label for="view-ticket-options" class="option-label">What would you like to view :</label>
+            <select name="view-ticket-options" id="view-ticket">
+                <option value="all">View All Tickets</option>
+                <option value="resolved">View All Resolved Tickets</option>
+                <option value="unresolved">View All Unresolved Tickets</option>
+                <option value="flagged">View All Flagged Tickets</option>
+            </select>
+        </p>
+
+
+        <p>
+            <label for="sort-ticket-options" class="option-label">How would you like your tickets sorted :</label>
+            <select name="sort-ticket-options" id="sort-ticket">
+                <option value="time">By Time</option>
+                <option value="ticket_category">By Category</option>
+            </select>
+            <select name="category-ticket-options" id="category-ticket" style = "display: none">
+                <option value="All">All</option>
+                <option value="Sign Up">Sign Up</option>
+                <option value="Log in">Log in</option>
+                <option value="Order">Order</option>
+                <option value="Refund">Refund</option>
+                <option value="Ticket">Ticket</option>
+            </select>
+        </p>
+        <button type="button" name="apply-filters-button" id="apply-filter-button">
+            APPLY FILTERS
+        </button>
+    </nav>
+    <section>
+       
+     
+        <div id="ticket-box" class="box">
+            <h3>Showing Tickets</h3>
+            <ul id="ticket-list"></ul>
+        </div>
+        <div id="question-box" class="box">
+            <h3>FAQs</h3>
+            <ul id="question-list"></ul>
+        </div>
+    </section>
+    <button id="leaveChatButton" class="bottom-right-button" style="display: none;">Leave Chat</button>
+    <footer>
+        <p>"Our prime purpose in this life is to help others. And if you can't help them, at least don't hurt them."</p>
+    </footer>
+    <!-- Add canvas for gradient border -->
+    <canvas id="myCanvas" style="display: none;"></canvas>
+    <script>
+        const dataElement = document.getElementById('server-data');
+    const dataString = dataElement.textContent;
+    const data = JSON.parse(dataString);
+
+
+    // Get user_id and role (assuming they are stored somewhere)
+    const user_id = data.user_id; // Replace with actual user_id
+    const role = data.role; 
+    if(data.role == 1){
+       document.getElementById('create-ticket-button').style.display = 'none';
+        document.getElementById('questions-button').style.display = '';
+    }
+        const c = document.getElementById("myCanvas");
+        const ctx = c.getContext("2d");
+
+
+        // Set canvas size to match section size
+        c.width = document.querySelector('section').offsetWidth;
+        c.height = document.querySelector('section').offsetHeight;
+
+
+        // Create linear gradient for border
+        const grad = ctx.createLinearGradient(0, 0, c.width, 0);
+        grad.addColorStop(0, "yellow");
+        grad.addColorStop(1, "red");
+
+        // Fill border with gradient
+        ctx.lineWidth = 10; // Set border width
+        ctx.strokeStyle = grad; // Set border color to gradient
+        ctx.strokeRect(0, 0, c.width, c.height); // Draw gradient border
+     
+        
+       
+        const sortedTicket = document.getElementById('sort-ticket');
+        const categoryTicket = document.getElementById('category-ticket');
+        sortedTicket.addEventListener('change', () => { 
+            const dataElement = document.getElementById('server-data');
+        const dataString = dataElement.textContent;
+        const data = JSON.parse(dataString);
+                const sortedBy = document.getElementById('sort-ticket').value;
+                if(sortedBy == 'ticket_category' && (data.role == 0 || data.role ==1) ){
+                    categoryTicket.style.display = 'block';
+                    categoryTicket.style.position = 'absolute';
+                    categoryTicket.style.top = sortedTicket.offsetTop + 'px';
+        categoryTicket.style.left = sortedTicket.offsetLeft + sortedTicket.offsetWidth + 'px';
+ 
+                } else{
+                    categoryTicket.style.display = 'none';
+                }
+               
+                });
+
+
+                const applyFilters = document.getElementById('apply-filter-button');
+
+
+applyFilters.addEventListener('click', async function() {
+    const sortedBy = document.getElementById('sort-ticket').value;
+ const dataElement = document.getElementById('server-data');
+        const dataString = dataElement.textContent;
+        const dataInfo = JSON.parse(dataString);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://localhost:3000/helpdesk/sort', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+
+
+    let data = {
+        sort: sortedBy,
+        role: dataInfo.role,
+        user_id: dataInfo.user_id
+    };
+
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            const responseData = JSON.parse(xhr.responseText);
+            console.log(responseData);
+            sortData(responseData);
+           
+        } else {
+            console.error('Error sorting data:', xhr.responseText);
+        }
+    };
+    xhr.send(JSON.stringify(data));
+
+
+    xhr.onerror = function () {
+        console.error('Network error occurred');
+    };
+
+
+    console.log("success");
+});
+
+
+
+
+        function showTickets(data){
+            const ticketList = document.getElementById('ticket-list');
+            
+            ticketList.innerHTML = '';
+
+
+            data.Tickets.forEach(ticket => {
+                const listItem = document.createElement('button');
+                listItem.setAttribute('class','ticket-buttons');
+                listItem.innerHTML = `Ticket ID: ${ticket.Ticket_id} <br> Category: ${ticket.Ticket_Category} <br> Description: ${ticket.Description} <br> Time: ${ticket.Time} <br> Status: ${ticket.STATUS}`;
+                
+
+
+                // Create ticket options HTML elements
+                const ticketOptions = document.createElement('div');
+                ticketOptions.classList.add('ticket-options');
+                const dataElement = document.getElementById('server-data');
+        const dataString = dataElement.textContent;
+        const dataInfo = JSON.parse(dataString);
+                // Add event listeners to ticket options buttons
+                listItem.addEventListener('click', () => {
+                    const ticketDetailsUrl = `http://localhost:3000/ticket/${ticket.Ticket_id}?role=${dataInfo.role}`;
+                    window.open(ticketDetailsUrl, '_blank', 'width=800,height=600');
+                });
+
+                // Append ticket button and options to list item
+                listItem.appendChild(ticketOptions);
+
+
+                // Append list item to ticket list
+                ticketList.appendChild(listItem);
+            });
+
+
+            // Append ticket list to ticket box
+            const ticketBox = document.getElementById('ticket-box');
+            ticketBox.innerHTML = '';
+            ticketBox.appendChild(ticketList);
+        }
+       
+async function fetchData() {
+    try {
+        // Fetch questions and tickets data
+        const dataElement = document.getElementById('server-data');
+        const dataString = dataElement.textContent;
+        const data = JSON.parse(dataString);
+        // Update ticket list if it exists
+        if (data.Tickets) {
+           showTickets(data);
+        }
+        // Update question list if it exists
+        const questionList = document.getElementById('question-list');
+        questionList.innerHTML = ''; // Clear existing list
+        if (data.Questions) {
+            var i = 1;
+            data.Questions.forEach(question => {
+
+                const listItem = document.createElement('li');
+                listItem.innerHTML = ` FAQ ${i}: ${question.question} <br> Answer: ${question.answer}`;
+                questionList.appendChild(listItem);
+                i++;
+            });
+        } else {
+            // Display header for questions if there are no questions
+            const listItem = document.createElement('li');
+            listItem.textContent = "No questions available";
+            questionList.appendChild(listItem);
+        }
+        const questionBox = document.getElementById('question-box');
+        questionBox.appendChild(questionList);
+       
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+
+// Call fetchData function when the page loads
+window.onload = fetchData;
+        // Add event listener to the "Create Ticket" button
+        document.getElementById('create-ticket-button').addEventListener('click', function () {
+    const dataElement = document.getElementById('server-data');
+    const dataString = dataElement.textContent;
+    const data = JSON.parse(dataString);
+
+
+    // Get user_id and role (assuming they are stored somewhere)
+    const user_id = data.user_id; // Replace with actual user_id
+    const role = data.role; // Replace with actual role
+
+
+    // Construct the redirect URL
+    const redirectUrl = `/ticket/createinfo?user_id=${user_id}&role=${role}`;
+
+
+    // Redirect to the new URL
+    window.location.href = redirectUrl;
+});
+document.getElementById("questions-button").addEventListener("click", function() {
+const urlParams = new URLSearchParams(window.location.search);
+const token = urlParams.get('token');
+
+// Make sure token is not null or empty
+if (token) {
+    // Create the XMLHttpRequest object
+    window.location.href = '/questions/token?token=' + token; 
+}
+  });
+
+ function sortData(data) {
+clearList();
+
+const sortedBy = document.getElementById('sort-ticket').value;
+const viewBy = document.getElementById('view-ticket').value;
+let firstSort = {"Tickets" : null};
+if(viewBy == 'flagged'){
+    const viewTickets = data.Tickets.filter(ticket => ticket.Flag_status === 1);
+            firstSort.Tickets = viewTickets;
+}
+else if(viewBy == 'all'){
+    firstSort.Tickets = data.Tickets;
+}
+else{
+    const viewTickets = data.Tickets.filter(ticket => ticket.STATUS === viewBy);
+            firstSort.Tickets = viewTickets;
+}
+
+ if (sortedBy === 'ticket_category') {
+    const categoryTicket = document.getElementById('category-ticket');
+        const category = categoryTicket.value; // get element
+        let filteredData ={ "Tickets": null };
+        if (category !== 'All') {
+            const filteredTickets = firstSort.Tickets.filter(ticket => ticket.Ticket_Category === category);
+            filteredData.Tickets = filteredTickets;
+            showTickets(filteredData);
+        } else {
+            showTickets(firstSort);
+        }
+    } else {
+        showTickets(firstSort);
+    }
+}
+
+
+function clearList() {
+    const ticketList = document.getElementById('ticket-list');
+    while (ticketList.firstChild) {
+        ticketList.removeChild(ticketList.firstChild);
+    }
+}
+
+
+</script>
+</body>
+
+
+</html>
+
+

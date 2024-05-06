@@ -1,7 +1,7 @@
 const url_lib = require('url');
 const path = require('path');
 const jwt = require('jsonwebtoken');
-require('dotenv').config({ path: path.join(__dirname, "../../cred.env") });
+require('dotenv').config({ path: path.join(__dirname, "../../../env/cred.env") });
 
 const db = require(path.join(__dirname, "../tools/db.js"));
 const account_tools = require(path.join(__dirname, "../tools/account_tools.js"));
@@ -19,30 +19,36 @@ const router = (req, res) => {
 				try {
 					const body = JSON.parse(data);
 					//check if all fields are provided
-					let email = body.email;
-				
-					let q = `SELECT * FROM User WHERE email = '${email}'`;
-					db.get(q, (err, results) => {
+					let username = body.username;
+					let password = body.password;
+
+					let q = `SELECT * FROM User WHERE username = '${username}'`;
+					db.all(q, (err, results) => {
 						//handle error
+						if (err) throw err;
 						if (err) {
 							res.writeHead(500, { 'Content-Type': 'text/plain' });
 							res.end('Server error');
 						} else {
-							if (results != null) {
+							if (results.length > 0) {
 								//should store hashed passwords using crypto js
-					
+								if (results[0].password == password) {
 									//login successful
 									let obj = {
-										username: results.username, 
-										email: results.email,
-										role: results.role
+										username: username, 
+										email: results[0].email,
+										role: results[0].role
 									}
 									//return token we should set time limit
 									let token = jwt.sign(obj, process.env.JWT_SECRET);
 									//write response header
 									res.writeHead(200, { 'Content-Type': 'text/plain' });
 									res.end(token);
-		
+								} else {
+									//password not match
+									res.writeHead(401, { 'Content-Type': 'text/plain' });
+									res.end('Wrong password');
+								}
 							} else {
 								//username not exist :(
 								res.writeHead(401, { 'Content-Type': 'text/plain' });
@@ -61,72 +67,80 @@ const router = (req, res) => {
 			res.end('Wrong method type');
 		}
 	} else if (url == '/account/create/user') {
+		if (req.method === 'POST') {
+			let req_body = '';
+			req.on('data', (chunk) => {
+				req_body += chunk;
+			})
+			req.on('end', () => {
+				try {
+					let obj;
+					let body = JSON.parse(req_body);
+					let {
+						username,
+						name, 
+						description,
+						category,
+						street_address,
+						email,
+						password,
+						role,
+					} = body;
+					//validate each entry and hash password
+					let q = `INSERT INTO User (username, email, password, status, role) VALUES (?, ?, ?, 'active', ?)`;
+					db.run(q, [username, email, password, role], (err, results) => {
+						//handle error
+						if (err) {
+							//console.log('hello', err);
+							res.writeHead(500, { 'Content-Type': 'text/plain' });
+							res.end('Server error');
+						} else {
+							obj = { success: true };
 
-					if (req.method === 'POST') {
-						let req_body = '';
-						req.on('data', (chunk) => {
-							req_body += chunk;
-						})
-						req.on('end', () => {
-							try {
-								let obj;
-								let body = JSON.parse(req_body);
-								let {
-									username,
-									name, 
-									description,
-									category,
-									street_address,
-									email,
-									password,
-									role,
-								} = body;
-								//validate each entry and hash password
-								let q = `INSERT INTO User (username, name, email, password, status, role) VALUES (?, ?, ?, ?, 'active', ?)`;
-								db.run(q, [username, name, email, password, role], (err, results) => {
-									//handle error
-									if (err) {
-										res.writeHead(500, { 'Content-Type': 'text/plain' });
-										res.end('Server error');
-									} else {
-										obj = { success: true };
-	
-									}
-								})
-								if (role == 2) {
-									let x = `SELECT * FROM User WHERE username = ?`; 
-									db.get(x, [username], (err, user) => {
-										if (err) {
+						}
+					})
+					if (role == 2) {
+						let x = `SELECT * FROM User WHERE username = ?`; 
+						db.all(x, [username], (err, user) => {
+							if (err) {
+								console.log(err);
+								res.writeHead(500, { 'Content-Type': 'text/plain' });
+								res.end('Server error');
+							} else {
+								if (user.length > 0) {
+									let z = `UPDATE Seller SET name = ?, description = ?, category = ?, street_address = ? WHERE seller_id = ?`; 
+									db.run(z, [name, description, category, street_address, user.user_id], (updateErr) => {
+										if (updateErr) {
+											console.log(updateErr);
 											res.writeHead(500, { 'Content-Type': 'text/plain' });
 											res.end('Server error');
 										} else {
-											let z = `UPDATE Seller SET name = ?, description = ?, category = ?, street_address = ? WHERE seller_id = ?`; 
-											db.run(z, [name, description, category, street_address, user.user_id], (updateErr) => {
-												if (updateErr) {
-													res.writeHead(500, { 'Content-Type': 'text/plain' });
-													res.end('Server error');
-												} else {
-													obj = { success: true };
-													
-												}
-											});
+											obj = { success: true };
+											res.writeHead(200, { 'Content-Type': 'text/plain' });
+											res.end(JSON.stringify(obj));
 										}
 									});
-								}
-								res.writeHead(200, { 'Content-Type': 'text/plain' });
-								res.end(JSON.stringify(obj));
-							} catch(e) {
-								//error JSON
-								res.writeHead(400, { 'Content-Type': 'text/plain' });
-								res.end('Error parsing JSON data!');
-							}
-						})
-					} else {
-						//wrong method
-						res.writeHead(405, { 'Content-Type': 'text/plain' });
-						res.end('Wrong method type');
-					}
+									console.log(user)
 
+								} else {
+									console.log('hello');
+									res.writeHead(500, { 'Content-Type': 'text/plain' });
+									res.end('Server error');
+								}
+							}
+						});
+					}
+				} catch(e) {
+					//error JSON
+					res.writeHead(400, { 'Content-Type': 'text/plain' });
+					res.end('Error parsing JSON data!');
+				}
+			})
+		} else {
+			//wrong method
+			res.writeHead(405, { 'Content-Type': 'text/plain' });
+			res.end('Wrong method type');
+		}
 	} else if (url == '/account/verify') {
 		if (req.method === 'POST') {
 			let data = '';
@@ -163,7 +177,7 @@ const router = (req, res) => {
 		if (auth_token) {
 			account_tools.verify(auth_token)
 			.then((data) => {
-				if (data.role == 0) { 
+				if (data.role == 0) {
 					if (req.method === 'POST') {
 						let req_body = '';
 						req.on('data', (chunk) => {
@@ -179,12 +193,12 @@ const router = (req, res) => {
 									role
 								} = body;
 								//validate each entry and hash password
-								let q = `INSERT INTO User VALUES (default, '${username}', '${email}', '${password}', 'active', ${role})`; 
-								db.query(q, (err, results) => {
+								let q = `INSERT INTO User (username, email, password, status, role) VALUES ('${username}', '${email}', '${password}', 'active', ${role})`; 
+								db.run(q, (err, results) => {
 									//handle error
 									if (err) {
-										res.writeHead(500, { 'Content-Type': 'text/plain' });
-										res.end('Server error');
+										res.writeHead(500, { 'Content-Type': 'text/plain' })
+										res.end('Server error')
 									} else {
 										let obj = { success: true };
 										res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -226,7 +240,7 @@ const router = (req, res) => {
 					if (req.method === 'GET') {
 						let records = [];
 						let q = `SELECT * FROM Orders`;
-						db.query(q, (err, results) => {
+						db.all(q, (err, results) => {
 							if (err) {
 								res.writeHead(500, { 'Content-Type': 'text/plain' });
 								res.end('Server error');
