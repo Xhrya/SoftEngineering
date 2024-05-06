@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Menu</title> <!-- Add a title here -->
+    <link rel="stylesheet" href="menuStyle.css">
+</head>
+<body>
+
+    <h1>Browse Menu<span>Brought To You By Munch Mates :)</span></h1>
+
+    <div class="topnav">
+        <form id="searchForm">
+            <input type="text" id="searchInput" placeholder="Search menu items..." />
+            <button type="submit" onclick="searchMenu()">Search</button>
+        </form>
+
+        <div class="sortOptions">
+            <button onclick="fetchSortedMenus('cuisine')">Cuisine</button>
+            <button onclick="fetchSortedMenus('dietRest')">Dietary Restrictions</button>
+            <button onclick="fetchSortedMenus('serviceType')">Service Type</button>
+            <button onclick="fetchSortedMenus('specialTags')">Special Tags</button>
+            <button onclick="fetchSortedMenus('foodCat')">Food Category</button>
+            <button onclick="fetchSortedMenus('mealType')">Meal Type</button>
+        </div>
+    </div>
+
+    <button id="openChat" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer;">Chat with MunchMate</button>
+    
+    <ul id="menuItemsList"></ul>
+
+    <script>
+
+        const parameters = new URLSearchParams(window.location.search);
+
+        function init(){
+            // Set the page title and header with the restaurant's name
+            const resName = parameters.get('name');
+            document.title = `${resName}`; // Set the title dynamically
+            const h1 = document.querySelector('h1');
+            h1.innerHTML = `${resName}<span>Brought To You By Munch Mates :)</span>`;
+        }
+
+        function displayMenu(){
+            // Parse the restaurant ID from the URL
+            const params = new URLSearchParams(window.location.search);
+            const restaurantId = params.get('restaurantId');
+            const name = params.get('name');
+
+            if (restaurantId) {
+                history.replaceState({page: "menu", restaurantId: restaurantId}, "Menu", `/restaurants/${restaurantId}/menu`);
+                fetch(`/restaurants/${restaurantId}/menu`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const menuItemsList = document.getElementById('menuItemsList');
+                        menuItemsList.innerHTML = ''; // Clear previous results
+                        data.forEach(item => {
+                            const li = document.createElement('li');
+                            li.classList.add('menuItem-box');
+                            li.innerHTML = `
+                                <h3>${item.name}</h3>
+                                <p>${item.description}</p>
+                                <p>Price: ${item.price}</p>
+                            `;
+                            li.addEventListener('click', () => {
+                                window.location.href = `/restaurants/${restaurantId}/menu`;
+                            });
+                            menuItemsList.appendChild(li);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching menu:', error);
+                        menuItemsList.innerHTML = '<li>Error loading menu items.</li>';
+                    });
+            } else {
+                // Handle the case where no restaurant ID is provided
+                document.getElementById('menuItemsList').innerHTML = '<li>No restaurant selected.</li>';
+            }
+        }
+
+        function searchMenu() {
+            event.preventDefault(); // Prevent form default submission
+            const keyword = document.getElementById('searchInput').value;
+            const restaurantId = window.location.pathname.split('/')[2];
+
+            if (!restaurantId) {
+                console.error('No restaurant ID provided.');
+                return;
+            }
+
+            // Fetch the endpoint with the keyword for the specific restaurant's menu
+            fetch(`/restaurants/${restaurantId}/menu?search=${keyword}`)
+                .then(response => response.json())
+                .then(data => {
+                    const menuItemsList = document.getElementById('menuItemsList');
+                    menuItemsList.innerHTML = ''; // Clear previous results
+                    data.forEach(item => {
+                        const li = document.createElement('li');
+                        li.classList.add('menuItem-box');
+                        li.innerHTML = `
+                            <h3>${item.name}</h3>
+                            <p>${item.description}</p>
+                            <p>Price: ${item.price}</p>
+                        `;
+                        li.addEventListener('click', () => {
+                            window.location.href = `/restaurants/${restaurantId}/menu`;
+                        });
+                        menuItemsList.appendChild(li);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching menu:', error);
+                    document.getElementById('menuItemsList').innerHTML = '<li>Error loading menu items.</li>';
+                });
+        }
+
+        function fetchSortedMenus(sortCategory) {
+            const restaurantId = parameters.get('restaurantId');
+            const url = `/restaurants/${restaurantId}/menu?sort=category&category=${encodeURIComponent(sortCategory)}`;
+            //console.log(url);
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    updateMenuList(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching sorted restaurants:', error);
+                    const resultsList = document.getElementById('menuItemsList');
+                    resultsList.innerHTML = '<li>Error loading sorted restaurants.</li>';
+                });
+        }
+
+        function updateMenuList(data) {
+            const resultsList = document.getElementById('menuItemsList');
+            resultsList.innerHTML = ''; // Clear previous results
+
+            Object.keys(data).forEach(category => {
+                // Create and append the category header
+                const categoryHeader = document.createElement('h2');
+                categoryHeader.textContent = category;
+                categoryHeader.classList.add('category-header');
+                resultsList.appendChild(categoryHeader);
+
+                // Append each restaurant under this category
+                data[category].forEach(menuItem => {
+                    const menuItemContainer = document.createElement('div');
+                    menuItemContainer.classList.add('menuItem-box');
+                    menuItemContainer.innerHTML = `
+                        <h3>${menuItem.name}</h3>
+                        <p>${menuItem.description}</p>
+                        <p>Price: ${menuItem.price}</p>
+                    `;
+                    resultsList.appendChild(menuItemContainer);
+                });
+            });
+        }
+
+
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            searchMenu();
+        });
+
+        init();
+        displayMenu();
+    </script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+h1 {
+    text-align:center; font-size:50px; text-transform:uppercase; color:#222; letter-spacing:1px;
+    font-family:"Playfair Display", serif; font-weight:400;
+}
+h1 span {
+    margin-top: 5px;
+    font-size:15px; color:#444; word-spacing:1px; font-weight:normal; letter-spacing:2px;
+    text-transform: uppercase; font-family:"Raleway", sans-serif; font-weight:500;
+
+    display: grid;
+    grid-template-columns: 1fr max-content 1fr;
+    grid-template-rows: 27px 0;
+    grid-gap: 20px;
+    align-items: center;
+}
+
+h1 span:after, h1 span:before {
+    content: " ";
+    display: block;
+    border-bottom: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    height: 5px;
+    background-color:#f8f8f8;
+}
+
+*,
+*:before,
+*:after {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+body {
+    background: #eee;
+}
+
+h1:before,
+h1:after {
+    background-color: #c50000;
+}
+
+#restaurantsResults {
+    list-style-type: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    justify-items: center; /* This will center the grid items (both headers and boxes) */
+    align-items: start; /* Align items to the start of their cell for a tidy top alignment */
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.category-header {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 15px;
+    grid-column: 1 / -1; /* Makes the header span all columns */
+    text-align: center;
+    background-color: #dfe6e9; /* A distinct background color for the category header */
+    width: 100%; /* Ensures the header fills the width of the column */
+    box-sizing: border-box; /* Makes sure the padding is included in the width */
+    padding: 10px 0; /* Adds some padding to the top and bottom of the header */
+    border-radius: 5px; /* Optional: adds rounded corners to the header */
+    margin-bottom: 20px; /* Adds some space between the header and the boxes below */
+}
+
+.restaurant-box {
+    background-color: #adcdd6; /* The light blue background */
+    border-radius: 5px;
+    padding: 1rem; /* Space around the white box */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Shadow for the blue box */
+    transition: background-color 0.5s;
+    max-width: 100%; /* Ensures that the box does not exceed the width of the column */
+    box-sizing: border-box; /* Include padding and border in the width and height */
+}
+
+.restaurant-box:hover {
+    background-color: #555;
+}
+
+.restaurant-info {
+    background-color: #fff; /* The white background */
+    border-radius: 5px;
+    padding: 20px; /* Padding inside the white box */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow for the white box */
+    height: 100%; /* Make sure it takes the full height of the parent */
+    width: 100%; /* Make sure it takes the full width of the parent */
+    box-sizing: border-box; /* Include padding in the width and height */
+    display: flex; /* Use flexbox to organize content */
+    flex-direction: column; /* Stack the content vertically */
+    justify-content: center; /* Center the content vertically */
+    align-items: center; /* Center the content horizontally */
+    text-align: center;
+}
+
+.restaurant-info h3 {
+    color: #222;
+    font-size: 18px;
+    margin: 0 0 10px 0; /* Margin at the bottom of the title */
+}
+
+.restaurant-info p {
+    font-size: 14px;
+    color: #555;
+    margin: 5px 0; /* Margin for paragraphs */
+}
+
+.topnav {
+    display: flex;
+    flex-direction: column; /* Stack the search bar and sort options vertically */
+    justify-content: center;
+    padding: 20px;
+    background-color: #e9e9e9;
+    align-items: center;
+}
+
+.topnav input[type=text] {
+    width: auto; /* Adjust width as needed or keep it flexible with auto */
+    padding: 10px 15px; /* Same vertical padding as button to match height */
+    font-size: 18px; /* Adjust as needed */
+    border: 2px solid #ccc; /* Matches button border thickness */
+    border-radius: 5px 0 0 5px; /* Rounds the corners - top and bottom left */
+    margin-right: -1px; /* Overlap the borders of input and button */
+    box-sizing: border-box; /* Include padding in the width calculation */
+}
+
+.topnav button {
+    padding: 10px 15px; /* Adjust padding to match the search bar height */
+    font-size: 18px; /* Adjust as needed */
+    border: 2px solid #ccc; /* Gives the button a border */
+    border-radius: 0 5px 5px 0; /* Rounds the corners - top and bottom right */
+    background-color: blue; /* Sets the background color to blue */
+    color: white; /* Adjust text color as needed */
+    cursor: pointer; /* Changes the cursor to a pointer on hover */
+    box-sizing: border-box; /* Include padding in the width calculation */
+}
+
+.sortOptions {
+    padding: 20px 0 0 0; /* Top, Right, Bottom, Left */
+}
+
+.sortOptions button {
+    padding: 10px 20px;
+    margin: 0 5px;
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    color: #333; /* Text Color */
+}
+
+.sortOptions button:hover {
+    background-color: #e0e0e0;
+}
+
+#openChat {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+/* Remove left on smaller screens to prevent misalignment */
+@media screen and (max-width: 600px) {
+    .topnav input[type=text] {
+        width: 100%; /* Full width on smaller screens */
+        border-radius: 5px; /* Round all corners */
+        margin-right: 0; /* Reset margin */
+    }
+    
+    .topnav button {
+        width: 100%; /* Full width on smaller screens */
+        border-radius: 5px; /* Round all corners */
+        margin-top: 10px; /* Adds space between the input and button */
+    }
+
+    #restaurantsResults {
+        grid-template-columns: 1fr; /* Stack boxes in a single column on small screens */
+        grid-auto-rows: auto; /* Let each box size according to its content */
+    }
+    
+    .restaurant-box {
+        height: auto; /* Reset fixed height for responsive design */
+    }
+    
+    .restaurant-info {
+        height: auto; /* Allow content to dictate height */
+    }
+}
+
+
+@media screen and (min-width: 600px) {
+    .category-header {
+        grid-column: 1 / -1; /* Makes the header span all columns */
+    }
+}
