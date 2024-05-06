@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <!-- Include Socket.io client library -->
+    <script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+    <main>
+        <!-- Form for entering username -->
+        <form id="usernameForm" class="form-join">
+            <input type="text" id="name" maxlength="16" placeholder="Your name" size="5" required>
+            <button id="joinUsername" type="submit">Enter Username</button>
+        </form>
+
+        <!-- Form for entering password -->
+        <form id="passwordForm" class="form-join" style="display: none;">
+            <input type="password" id="password" placeholder="Your password" required>
+            <button id="joinPassword" type="submit">Enter Password</button>
+        </form>
+        
+        <!-- Form for entering room ID -->
+        <form id="roomForm" class="form-join" style="display: none;">
+            <input type="text" id="room" maxlength="16" placeholder="Ticket ID" size="10" required>
+            <button id="joinRoom" type="submit">Join Room</button>
+            <p class="activity" style="display: none;"></p>
+        </form>
+
+        <!-- Chat display and other elements -->
+        <ul class="chat-display" style="display: none;"></ul>
+        <p class="user-list" style="display: none;"></p>
+        <p class="room-list" style="display: none;"></p>
+        <p class="activity" style="display: none;"></p>
+        <form id="messageForm" class="form-msg" style="display: none;">
+            <input type="text" id="message" placeholder="Your message" required>
+            <button type="submit">Send</button>
+        </form>
+    </main>
+
+    <script>
+        const socket = io('https://livechattomer.onrender.com');
+
+        // Form for entering username
+        const usernameForm = document.getElementById('usernameForm');
+        const usernameInput = document.getElementById('name');
+
+        // Form for entering password
+        const passwordForm = document.getElementById('passwordForm');
+        const passwordInput = document.getElementById('password');
+
+        // Form for entering room ID
+        const roomForm = document.getElementById('roomForm');
+        const roomInput = document.getElementById('room');
+
+        usernameForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const name = usernameInput.value;
+    if (name === 'HelpDesk') {
+        // Hide the username form
+        usernameForm.style.display = 'none';
+        // Show the room list
+        document.querySelector('.room-list').style.display = 'block';
+        // Show the password form
+        passwordForm.style.display = 'block';
+        // Focus on the password input field
+        passwordInput.focus();
+    } else {
+        // Hide the username form
+        usernameForm.style.display = 'none';
+        // Proceed to room ID entry directly
+        roomForm.style.display = 'block';
+        // Focus on the room ID input field
+        roomInput.focus();
+    }
+});
+
+// Join password form submission
+passwordForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const password = passwordInput.value;
+    if (password === 'ADMIN') {
+        // Hide the password form
+        passwordForm.style.display = 'none';
+        // Show the room ID form
+        roomForm.style.display = 'block';
+        document.querySelector('.room-list').style.display = 'block';
+        // Focus on the room ID input field
+        roomInput.focus();
+    } else {
+        alert('Incorrect password');
+        passwordInput.value = ''; // Clear the password input field
+    }
+});
+
+        // Join room form submission
+        roomForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (name === 'HelpDesk') {
+                document.querySelector('.room-list').style.display = 'block';
+            }
+            proceedToRoomForm();
+        });
+
+        // Function to proceed to room form
+        function proceedToRoomForm() {
+            const name = usernameInput.value;
+            const room = roomInput.value;
+            socket.emit('enterRoom', { name, room });
+            // Hide the room ID form
+            roomForm.style.display = 'none';
+            // Show the chat elements
+            document.querySelector('.chat-display').style.display = 'block';
+            document.querySelector('.user-list').style.display = 'block';
+            document.querySelector('.activity').style.display = 'block';
+            document.getElementById('messageForm').style.display = 'block'; 
+            if (name === 'HelpDesk') {
+                document.querySelector('.room-list').style.display = 'block';
+            }
+
+        }
+
+        // Event listener to handle room full event
+        socket.on('roomFull', function () {
+            alert('Wrong Ticket ID');
+            // Reset the room form
+            document.getElementById('roomForm').reset();
+        });
+
+        // Function to handle leaving the chat room
+        function leaveChatRoom(socketId) {
+            socket.emit('leaveRoom', socketId);
+        }
+
+        // Function to send a message
+        document.getElementById('messageForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const message = document.getElementById('message').value;
+            const name = document.getElementById('name').value;
+            socket.emit('message', { name, text: message });
+            document.getElementById('message').value = ''; // Clear the input field
+        });
+
+        // Event listener to handle incoming messages
+        socket.on('message', function (data) {
+            const { name, text, time } = data;
+            const message = `<li>${name} (${time}): ${text}</li>`;
+            document.querySelector('.chat-display').innerHTML += message;
+        });
+
+        // Event listener to update the user list
+        socket.on('userList', function (data) {
+            const users = data.users;
+            let userList = '<em>Connected:</em><br>';
+            users.forEach(function (user) {
+                userList += `${user.name}<br>`;
+            });
+            document.querySelector('.user-list').innerHTML = userList;
+        });
+
+        // Event listener to update the room list
+        socket.on('roomList', function (data) {
+            const rooms = data.rooms;
+            let roomList = '<em>Ticket ID:</em><br>';
+            rooms.forEach(function (room) {
+                roomList += `${room}<br>`;
+            });
+            document.querySelector('.room-list').innerHTML = roomList;
+        });
+
+        // Event listener to handle typing activity
+        document.getElementById('message').addEventListener('keypress', function () {
+            socket.emit('activity', document.getElementById('name').value);
+        });
+
+        // Event listener to display typing activity
+        socket.on('activity', function (name) {
+            document.querySelector('.activity').textContent = `${name} is typing...`;
+        });
+    </script>
+</body>
+</html>
