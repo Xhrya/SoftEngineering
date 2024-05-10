@@ -20,3 +20,8 @@ MunchMate is designed to build a community of food lovers. It's a comprehensive 
 1. Clone the repository:
    ```bash
    git clone https://github.com/Xhrya/SoftEngineering.git
+2. Navigate to the project directory: cd SoftEngineering
+3. Install dependencies: npm install
+4. Start the server: node app.js
+
+
